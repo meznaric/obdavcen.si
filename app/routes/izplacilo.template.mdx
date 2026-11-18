@@ -1,0 +1,78 @@
+---
+meta:
+  - title: Main website title
+  - name: description
+    content: Main description of the page for SEO reasons
+---
+
+export const meta = frontmatter.meta;
+export const headers = frontmatter.headers;
+
+import { IdeaIcon, CalculatorIcon, Alert01Icon, CheckmarkCircle01Icon } from "hugeicons-react";
+import CurrencyOutput from "../ui/pages/Blogs/CurrencyOutput";
+import SharedInputs from "../ui/pages/Blogs/SharedInputs";
+
+# This is a main post title
+
+Make design responsive. Use divider and divider-horizontal from daisy-ui.
+
+You can use rich icons, components and more.
+<IdeaIcon className="size-6 text-yellow-500" />
+
+
+Uporabljaj alerte po potrebi, naprimer:
+
+<div className="alert alert-info not-prose" role="alert">
+  <IdeaIcon className="w-6 h-6" />
+  <div>
+    <strong>TITLE</strong>
+    <br />
+    <span className="text-sm">
+      DESCRIPTION
+    </span>
+  </div>
+</div>
+
+Uporabljaj stats iz daisy-ui, npr.:
+<div className="stats shadow">
+  <div className="stat">
+    <div className="stat-title">TITLE</div>
+    <div className="stat-value">CURRENCYOUTPUT</div>
+    <div className="stat-desc">_CURRENCYOUTPUT rate data point_ description</div>
+  </div>
+</div>
+
+Available taxModes SP, NormiraniSP, DOOMinimalnaPlaca, DOONajvecjaPlaca
+
+## Primer z fiksnimi vrednosti
+
+Pri prihodkih <CurrencyOutput taxMode="SP" dataPoint="totalRevenue" revenue={50000} expenses={10000} /> letno in <CurrencyOutput taxMode="SP" dataPoint="totalExpenses" revenue={50000} expenses={10000} /> stroškov:
+
+Efektivna davčna stopnja: <CurrencyOutput taxMode="SP" dataPoint="effectiveTaxRate" revenue={50000} expenses={10000} />
+
+Procent stroškov: <CurrencyOutput taxMode="SP" dataPoint="expenseRate" revenue={50000} expenses={10000} />
+
+Procent čistih prihodkov: <CurrencyOutput taxMode="SP" dataPoint="cistiPrihodkiRate" revenue={50000} expenses={10000} />
+
+Davki skupaj: <CurrencyOutput taxMode="SP" dataPoint="totalTax" revenue={50000} expenses={10000} />
+
+Čisti prihodki skupaj: <CurrencyOutput taxMode="SP" dataPoint="totalNet" revenue={50000} expenses={10000} />
+
+## Primer z uporabnikovimi vrednosti (from SharedInputs)
+
+This shows 2 inputs for "Revenue" and "Expenses". Those are called "SharedInputs".
+
+<SharedInputs />
+
+Pri prihodkih <CurrencyOutput taxMode="SP" dataPoint="totalRevenue" /> letno in <CurrencyOutput taxMode="SP" dataPoint="totalExpenses" /> stroškov:
+
+
+Procent stroškov: <CurrencyOutput taxMode="SP" dataPoint="expenseRate" />
+
+Davki skupaj: <CurrencyOutput taxMode="SP" dataPoint="totalTax" />
+
+Efektivna davčna stopnja: <CurrencyOutput taxMode="SP" dataPoint="effectiveTaxRate"/>
+
+Čisti prihodki skupaj: <CurrencyOutput taxMode="SP" dataPoint="totalNet" />
+
+Procent čistih prihodkov: <CurrencyOutput taxMode="SP" dataPoint="cistiPrihodkiRate" />

@@ -1,0 +1,547 @@
+---
+meta:
+  - title: DOO (d.o.o.) - Izračuni
+  - name: description
+    content: Celovit vodič o družbi z omejeno odgovornostjo (d.o.o.). Izračun davkov in prispevkov, primerjava z ostalimi oblikami podjetništva, prednosti in slabosti.
+---
+
+export const meta = frontmatter.meta;
+export const headers = frontmatter.headers;
+
+import { IdeaIcon, ComputerDollarIcon, CalculatorIcon, Alert01Icon, CheckmarkCircle01Icon } from "hugeicons-react";
+import {
+  ddpoTaxRate,
+  dividendsTaxRate,
+  zavarovanecOZPEur,
+  delodajalecPIZrate,
+  delodajalecZZZSrate,
+  delodajalecStarsevsko,
+  delodajalecBrezposelnost,
+  delodajalecPoskodbe,
+  zavarovanecPIZrate,
+  zavarovanecZZZSrate,
+  zavarovanecStarsevsko,
+  zavarovanecBrezposelnost,
+  generalTaxRelief
+} from "../constants/2026/constants";
+import CurrencyOutput from "../ui/pages/Blogs/CurrencyOutput";
+import SharedInputs from "../ui/pages/Blogs/SharedInputs";
+import { minimalnaPlaca } from "../constants/2026";
+import formatCurrency from "../utils/formatCurrency";
+import asPercent from "../utils/asPercent";
+
+# D.o.o. - Osnovni davčni izračuni
+
+<div className="alert alert-info not-prose" role="alert">
+  <ComputerDollarIcon className="w-6 h-6" />
+  <div>
+    <strong>Hitroprav</strong>
+    <br />
+    <span className="text-sm">
+      Ta članek je nastal iz osebnih zapiskov pri raziskovanju zakonov o d.o.o. Izračuni so primarno namenjeni digitalnim podjetnikom, ki delajo na daljavo.
+    </span>
+  </div>
+</div>
+
+
+## Kako se računa davek od dobička (DDPO)?
+
+Pri DOO se najprej obračuna davek od dobička pravnih oseb (DDPO):
+
+```typescript
+Dobiček = Prihodki - Odhodki - Plače - Prispevki delodajalca
+DDPO = Dobiček × 22%
+Čisti dobiček = Dobiček - DDPO
+```
+
+<div className="alert not-prose" role="alert">
+  <IdeaIcon className="w-6 h-6 text-sky-500" />
+  <div>
+    <span className="text-sm">
+      Dobiček se lahko zmanjša z davčnimi olajšavami (investicije, R&D, zaposlovanje...).
+    </span>
+  </div>
+</div>
+
+## Kako se računa davek na dividende?
+
+Ko se odločite za izplačilo dobička, se obračuna še davek na dividende:
+
+```typescript
+Davek na dividende = Izplačane dividende × 25%
+Neto dividende = Izplačane dividende - Davek na dividende
+```
+
+## Kako se računajo prispevki?
+
+Pri DOO imamo dva glavna načina izplačil:
+1. **Plača** (mesečno izplačilo)
+2. **Dividende** (izplačilo dobička)
+
+### Izračun plače
+
+Primer izračuna plače
+```typescript
+Bruto1 = Osnovna plača
+Bruto2 = Bruto1 + prispevki delodajalca (16.1%)
+
+Neto plača = Bruto1 - prispevki zavarovanca (22%) - dohodnina (progresivna lestvica) - mesečno doplačilo (35€)
+```
+
+<div className="stats shadow max-md:stats-vertical">
+  <div className="stat">
+    <div className="stat-title">Prispevki delodajalca</div>
+    <div className="stat-value">16.1%</div>
+    <div className="stat-desc">od bruto plače</div>
+  </div>
+  <div className="stat">
+    <div className="stat-title">Prispevki zavarovanca</div>
+    <div className="stat-value">22%</div>
+    <div className="stat-desc">od bruto plače</div>
+  </div>
+  <div className="stat">
+    <div className="stat-title">OZP</div>
+    <div className="stat-value">35€</div>
+    <div className="stat-desc">Mesečno doplačilo</div>
+  </div>
+</div>
+
+Podrobna tabela je na koncu strani.
+
+
+## Kako se računa dohodnina?
+
+Dohodnina se računa po progresivni lestvici od davčne osnove, kar pomeni da plačamo procente za vsak dohodninski razred v katerem smo.
+
+Dohodninska lestvica za leto 2024:
+- 16% do 8.755€
+- 26% od 8.755€ do 25.750€
+- 33% od 25.750€ do 51.500€
+- 39% od 51.500€ do 74.160€
+- 50% nad 74.160€
+
+Kako se izračuna davčna osnova?
+
+```
+Dohodninska osnova = Bruto1 Plača - Splošna Davčna Olajšava - Prispevki zavarovanca
+```
+
+<div className="divider"></div>
+
+## Strategije izplačil pri DOO
+
+Pri DOO lahko optimizirate davčno obremenitev s pravilno kombinacijo plače in dividend. Spodaj si oglejte različne strategije.
+
+
+## 1. Minimalna plača + največ dividend
+
+Ta strategija vključuje:
+- Izplačevanje minimalne plače (trenutno okoli {formatCurrency(minimalnaPlaca)} bruto)
+- Preostali dobiček se izplača kot dividende
+- Nižja obremenitev s progresivno dohodnino
+- Višja obremenitev z davkom od dividend (25%)
+
+<div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+  <div className="card">
+    <span className="card-title text-green-500">Prednosti</span>
+    - Nižji mesečni stroški dela
+    - Predvidljivi mesečni stroški
+    - Možnost optimizacije izplačil dividend
+  </div>
+  <div>
+    <div className="card-title text-red-500">Slabosti:</div>
+    - Nižja pokojninska osnova
+    - Nižja osnova za nadomestila (bolniška, starševska)
+    - Dvojna obdavčitev pri dividendah
+  </div>
+</div>
+
+
+<SharedInputs />
+
+<div className="stats shadow my-4 max-md:stats-vertical">
+  <div className="stat">
+    <div className="stat-title">Čisti Dobiček</div>
+    <div className="stat-value"><CurrencyOutput taxMode="DOOMinimalnaPlaca" dataPoint="totalNet" /></div>
+    <div className="stat-desc"><CurrencyOutput taxMode="DOOMinimalnaPlaca" dataPoint="cistiPrihodkiRate" /> prihodkov</div>
+  </div>
+  <div className="stat">
+    <div className="stat-title">Dajatve</div>
+    <div className="stat-value"><CurrencyOutput taxMode="DOOMinimalnaPlaca" dataPoint="totalTax" /></div>
+    <div className="stat-desc"><CurrencyOutput taxMode="DOOMinimalnaPlaca" dataPoint="effectiveTaxRate" /> efektivna davčna stopnja</div>
+  </div>
+</div>
+
+## 2. Največja plača
+
+Ta strategija vključuje:
+- Večino ali ves dobiček izplačate kot plačo
+- Minimalno ali nič dividend
+- Višja progresivna obdavčitev
+- Enkratna obdavčitev (brez dividend)
+
+<div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+  <div className="card">
+    <span className="card-title text-green-500">Prednosti</span>
+    - Višja pokojninska osnova
+    - Boljša socialna varnost
+    - Višja kreditna sposobnost
+    - Enkratna obdavčitev
+  </div>
+  <div>
+    <div className="card-title text-red-500">Slabosti:</div>
+    - Višji mesečni stroški
+    - Višja progresivna obdavčitev
+    - Manj fleksibilnosti pri izplačilih
+  </div>
+</div>
+
+<SharedInputs />
+
+<div className="stats shadow my-4 max-md:stats-vertical">
+  <div className="stat">
+    <div className="stat-title">Čisti Dobiček</div>
+    <div className="stat-value"><CurrencyOutput taxMode="DOONajvecjaPlaca" dataPoint="totalNet" /></div>
+    <div className="stat-desc"><CurrencyOutput taxMode="DOONajvecjaPlaca" dataPoint="cistiPrihodkiRate" /> prihodkov</div>
+  </div>
+  <div className="stat">
+    <div className="stat-title">Dajatve</div>
+    <div className="stat-value"><CurrencyOutput taxMode="DOONajvecjaPlaca" dataPoint="totalTax" /></div>
+    <div className="stat-desc"><CurrencyOutput taxMode="DOONajvecjaPlaca" dataPoint="effectiveTaxRate" /> efektivna davčna stopnja</div>
+  </div>
+</div>
+
+## 3. Primerjava strategij
+
+<div className="overflow-x-auto">
+  <table className="table">
+    <thead>
+      <tr>
+        <th>Vidik</th>
+        <th>Minimalna plača + dividende</th>
+        <th>Največja plača</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Mesečni stroški</td>
+        <td>Nižji</td>
+        <td>Višji</td>
+      </tr>
+      <tr>
+        <td>Socialna varnost</td>
+        <td>Osnovna</td>
+        <td>Višja</td>
+      </tr>
+      <tr>
+        <td>Fleksibilnost izplačil</td>
+        <td>Višja</td>
+        <td>Nižja</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<SharedInputs />
+
+Če primerjamo neto, ki nam priteče na račun pri teh dveh strategijah:
+
+<div className="stats shadow my-4 max-md:stats-vertical">
+  <div className="stat">
+    <div className="stat-title">Minimalna plača</div>
+    <div className="stat-value"><CurrencyOutput taxMode="DOOMinimalnaPlaca" dataPoint="totalNet" /></div>
+    <div className="stat-desc"><CurrencyOutput taxMode="DOOMinimalnaPlaca" dataPoint="effectiveTaxRate" /> efektivna davčna stopnja</div>
+  </div>
+  <div className="stat">
+    <div className="stat-title">Največja plača</div>
+    <div className="stat-value"><CurrencyOutput taxMode="DOONajvecjaPlaca" dataPoint="totalNet" /></div>
+    <div className="stat-desc"><CurrencyOutput taxMode="DOONajvecjaPlaca" dataPoint="effectiveTaxRate" /> efektivna davčna stopnja</div>
+  </div>
+</div>
+
+<div className="divider"></div>
+
+## Kdaj izbrati DOO?
+
+Točne številke so odvisne od drugih faktorjev kot so stroški in podobno.
+
+- Ko pričakujete **višje prihodke** (nad 60.000€ letno)
+- Ko imate **stabilno poslovanje**
+- Ko želite **zaščititi osebno premoženje**
+- Ko načrtujete **zaposlovanje**
+- Ko želite **fleksibilnost pri izplačilih**
+- Ko razmišljate o **prodaji podjetja** v prihodnosti
+
+Če so vam pomembne prednosti, ki jih dobite z večjo plačo.
+
+<div className="stats shadow mb-4 max-md:stats-vertical">
+  <div className="stat">
+    <div className="stat-title">Od</div>
+    <div className="stat-value">60.000€+</div>
+    <div className="stat-desc">Za optimalno davčno učinkovitost</div>
+  </div>
+  <div className="stat">
+    <div className="stat-title">Do</div>
+    <div className="stat-value">120.000€</div>
+    <div className="stat-desc">Za optimalno davčno učinkovitost</div>
+  </div>
+</div>
+
+Če želite najvišji neto na svoj račun in si boste večino izplačevali z dividendami:
+
+<div className="stats shadow mb-4 max-md:stats-vertical">
+  <div className="stat">
+    <div className="stat-title">Od</div>
+    <div className="stat-value">60.000€+</div>
+    <div className="stat-desc">Za optimalno davčno učinkovitost</div>
+  </div>
+</div>
+
+## Kdaj DOO ni prava izbira?
+
+<div className="alert not-prose mb-4" role="alert">
+  <Alert01Icon className="w-6 h-6 text-yellow-500" />
+  <div>
+    <strong className="text-yellow-500">Pozor pri nizkih prihodkih</strong>
+    <br />
+    <span className="text-sm">
+      Pri prihodkih pod 60.000€ letno so stroški in kompleksnost DOO običajno previsoki v primerjavi s prednostmi.
+    </span>
+  </div>
+</div>
+
+- Pri **nizkih prihodkih** (pod 60.000€ letno)
+- Ko imate **nestabilne prihodke**
+- Ko ne želite voditi **kompleksnega računovodstva**
+- Ko potrebujete **hiter dostop do denarja**
+- Ko imate **visoke začetne stroške**
+
+## Primerjave z drugimi oblikami
+
+<SharedInputs />
+
+## DOO ali SP?
+
+Kot je razvidno iz primerjave na [prvi strani](/), SP pade med obe d.o.o.-jevi davčni strategiji pri približno 108,000€ letno, do takrat se SP načeloma ne splača v nobenem primeru.
+
+<div className="overflow-x-auto">
+  <table className="table">
+    <thead>
+      <tr>
+        <th>Kriterij</th>
+        <th>DOO</th>
+        <th>SP</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Ustanovitveni stroški</td>
+        <td>Višji (7.500€ + stroški)</td>
+        <td>Nizki</td>
+      </tr>
+      <tr>
+        <td>Računovodstvo</td>
+        <td>Kompleksno</td>
+        <td>Enostavnejše</td>
+      </tr>
+      <tr>
+        <td>Osebna odgovornost</td>
+        <td>Omejena</td>
+        <td>Neomejena</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+Pri <CurrencyOutput taxMode="NormiraniSP" dataPoint="totalRevenue" /> letnih prihodkih in <CurrencyOutput taxMode="NormiraniSP" dataPoint="totalExpenses" /> stroških:
+
+<div className="stats shadow my-4 max-md:stats-vertical">
+  <div className="stat">
+    <div className="stat-title">D.o.o. Minimalna plača</div>
+    <div className="stat-value"><CurrencyOutput taxMode="DOOMinimalnaPlaca" dataPoint="totalNet" /></div>
+    <div className="stat-desc"><CurrencyOutput taxMode="DOOMinimalnaPlaca" dataPoint="effectiveTaxRate" /> efektivna davčna stopnja</div>
+  </div>
+  <div className="stat">
+    <div className="stat-title">D.o.o. Največja plača</div>
+    <div className="stat-value"><CurrencyOutput taxMode="DOONajvecjaPlaca" dataPoint="totalNet" /></div>
+    <div className="stat-desc"><CurrencyOutput taxMode="DOONajvecjaPlaca" dataPoint="effectiveTaxRate" /> efektivna davčna stopnja</div>
+  </div>
+  <div className="stat">
+    <div className="stat-title">SP</div>
+    <div className="stat-value"><CurrencyOutput taxMode="SP" dataPoint="totalNet" /></div>
+    <div className="stat-desc"><CurrencyOutput taxMode="SP" dataPoint="effectiveTaxRate" /> efektivna davčna stopnja</div>
+  </div>
+</div>
+
+### DOO ali Normirani SP?
+
+Pod 60.000€ je normirani SP skoraj vedno boljša izbira kot D.o.o.
+
+Pri <CurrencyOutput taxMode="NormiraniSP" dataPoint="totalRevenue" /> letnih prihodkih in <CurrencyOutput taxMode="NormiraniSP" dataPoint="totalExpenses" /> stroških:
+
+<div className="stats shadow my-4 max-md:stats-vertical">
+  <div className="stat">
+    <div className="stat-title">D.o.o. Minimalna plača</div>
+    <div className="stat-value"><CurrencyOutput taxMode="DOOMinimalnaPlaca" dataPoint="totalNet" /></div>
+    <div className="stat-desc"><CurrencyOutput taxMode="DOOMinimalnaPlaca" dataPoint="effectiveTaxRate" /> efektivna davčna stopnja</div>
+  </div>
+  <div className="stat">
+    <div className="stat-title">D.o.o. Največja plača</div>
+    <div className="stat-value"><CurrencyOutput taxMode="DOONajvecjaPlaca" dataPoint="totalNet" /></div>
+    <div className="stat-desc"><CurrencyOutput taxMode="DOONajvecjaPlaca" dataPoint="effectiveTaxRate" /> efektivna davčna stopnja</div>
+  </div>
+  <div className="stat">
+    <div className="stat-title">Normirani SP</div>
+    <div className="stat-value"><CurrencyOutput taxMode="NormiraniSP" dataPoint="totalNet" /></div>
+    <div className="stat-desc"><CurrencyOutput taxMode="NormiraniSP" dataPoint="effectiveTaxRate" /> efektivna davčna stopnja</div>
+  </div>
+</div>
+
+<div className="alert not-prose mb-4" role="alert">
+  <Alert01Icon className="w-6 h-6 text-yellow-500" />
+  <div>
+    <span className="text-sm">
+      Normirani SP ne more presegati 60.000€ letno!
+    </span>
+  </div>
+</div>
+
+
+## Zaključek
+
+DOO je odlična izbira za podjetnike, ki:
+- Pričakujejo višje prihodke
+- Želijo ločiti osebno in poslovno premoženje
+- Načrtujejo dolgoročno rast
+- Potrebujejo fleksibilnost pri izplačilih
+
+<div className="alert not-prose mb-4" role="alert">
+  <IdeaIcon className="w-6 h-6 text-sky-500" />
+  <div>
+    <strong>Zanimivost: Mrtva cona</strong>
+    <br />
+    <span className="text-sm">
+      Pri 0€ stroških se bolj splača imeti SP s prihodki 60.000€/leto kot DOO s prihodki 87.000€/leto zaradi učinkovitosti normiranega SP. Ta razlika se zmanjša pri višjih stroških.
+    </span>
+  </div>
+</div>
+
+
+<div className="alert alert-success not-prose" role="alert">
+  <CheckmarkCircle01Icon className="w-6 h-6" />
+  <div>
+    <strong>Ključni nasvet</strong>
+    <br />
+    <span className="text-sm">
+      Pred ustanovitvijo DOO se posvetujte z računovodjo ali davčnim svetovalcem, ki vam bo lahko svetoval glede na vašo specifično situacijo.
+    </span>
+  </div>
+</div>
+
+## Viri
+
+<div className="alert alert-info not-prose mb-4" role="alert">
+  <CalculatorIcon className="w-6 h-6" />
+  <div>
+    <strong>Zakonsko določene stopnje za leto 2026</strong>
+    <br />
+    <span className="text-sm">
+      Vse stopnje so določene z zakoni in se lahko letno spreminjajo. Trenutne vrednosti veljajo za leto 2026.
+    </span>
+  </div>
+</div>
+
+<div className="overflow-x-auto max-w-full">
+  <table className="table">
+    <thead>
+      <tr>
+        <th>Dajatve</th>
+        <th>Stopnja</th>
+        <th>Zakonska podlaga</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Davek od dohodka pravnih oseb (DDPO)</td>
+        <td>{asPercent(ddpoTaxRate)}</td>
+        <td>
+          <a href="https://www.fu.gov.si/davki_in_druge_dajatve/podrocja/davek_od_dohodkov_pravnih_oseb_ddpo/" className="link">fu.gov.si</a>
+        </td>
+      </tr>
+      <tr>
+        <td>Davek na dividende</td>
+        <td>{asPercent(dividendsTaxRate)}</td>
+        <td><a href="https://zakonodaja.com/zakon/zdoh-2/132-clen" className="link">ZDoh-2, 132. člen</a></td>
+      </tr>
+      <tr>
+        <td>Mesečno zdravstveno zavarovanje</td>
+        <td>{formatCurrency(zavarovanecOZPEur)}</td>
+        <td><a href="https://www.gov.si/novice/2023-12-29-z-novim-letom-prihaja-obvezni-zdravstveni-prispevek/" className="link">gov.si</a></td>
+      </tr>
+      <tr>
+        <td>Splošna davčna olajšava</td>
+        <td>{formatCurrency(generalTaxRelief)}</td>
+        <td><a href="https://fu.gov.si/fileadmin/Internet/Davki_in_druge_dajatve/Podrocja/Dohodnina/Letna_odmera_dohodnine/Opis/Lestvica_za_leto_2025.docx" className="link">fu.gov.si</a></td>
+      </tr>
+    </tbody>
+    <thead>
+      <tr>
+        <th>Prispevki delodajalca</th>
+        <th>Stopnja</th>
+        <th>
+          <a className="link mt-0 mb-0" href="https://www.fu.gov.si/davki_in_druge_dajatve/podrocja/prispevki_za_socialno_varnost/osnove_za_placilo_ter_zneski_prispevkov_za_socialno_varnost">fu.gov.si</a>
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Pokojninsko in invalidsko (PIZ)</td>
+        <td>{asPercent(delodajalecPIZrate)}</td>
+      </tr>
+      <tr>
+        <td>Zdravstveno zavarovanje (ZZ)</td>
+        <td>{asPercent(delodajalecZZZSrate)}</td>
+      </tr>
+      <tr>
+        <td>Starševsko varstvo</td>
+        <td>{asPercent(delodajalecStarsevsko)}</td>
+      </tr>
+      <tr>
+        <td>Zavarovanje za brezposelnost</td>
+        <td>{asPercent(delodajalecBrezposelnost)}</td>
+      </tr>
+      <tr>
+        <td>Poškodbe pri delu</td>
+        <td>{asPercent(delodajalecPoskodbe)}</td>
+      </tr>
+    </tbody>
+    <thead>
+      <tr>
+        <th>Prispevki zavarovanca</th>
+        <th>Stopnja</th>
+        <th>
+          <a className="link mt-0 mb-0" href="https://www.fu.gov.si/davki_in_druge_dajatve/podrocja/prispevki_za_socialno_varnost/osnove_za_placilo_ter_zneski_prispevkov_za_socialno_varnost">fu.gov.si</a>
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Pokojninsko in invalidsko (PIZ)</td>
+        <td>{asPercent(zavarovanecPIZrate)}</td>
+      </tr>
+      <tr>
+        <td>Zdravstveno zavarovanje (ZZ)</td>
+        <td>{asPercent(zavarovanecZZZSrate)}</td>
+      </tr>
+      <tr>
+        <td>Starševsko varstvo</td>
+        <td>{asPercent(zavarovanecStarsevsko)}</td>
+      </tr>
+      <tr>
+        <td>Zavarovanje za brezposelnost</td>
+        <td>{asPercent(zavarovanecBrezposelnost)}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+

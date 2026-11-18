@@ -1,0 +1,12 @@
+node_modules
+.git
+.vite
+coverage
+*.log
+.env
+.cache
+dist
+build/*
+!build/client
+!build/server
+.DS_Store

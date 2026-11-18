@@ -1,0 +1,60 @@
+import {
+  Links,
+  Meta,
+  Outlet,
+  Scripts,
+  ScrollRestoration,
+} from "@remix-run/react";
+import { LinksFunction, LoaderFunctionArgs, redirect } from "@remix-run/node";
+
+import "./tailwind.css";
+
+export const links: LinksFunction = () => [
+  { rel: "preconnect", href: "https://fonts.googleapis.com" },
+  {
+    rel: "preconnect",
+    href: "https://fonts.gstatic.com",
+    crossOrigin: "anonymous",
+  },
+  {
+    rel: "stylesheet",
+    href: "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap",
+  },
+];
+
+export function loader({ request }: LoaderFunctionArgs) {
+  const host = request.headers.get("host");
+  if (host === "www.obdavcen.si") {
+    const url = new URL(request.url);
+    url.host = "obdavcen.si";
+    return redirect(url.toString());
+  }
+
+  return null;
+}
+
+export function Layout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en">
+      <head>
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <script
+          async
+          src="https://scripts.simpleanalyticscdn.com/latest.js"
+        ></script>
+        <Meta />
+        <Links />
+      </head>
+      <body>
+        {children}
+        <ScrollRestoration />
+        <Scripts />
+      </body>
+    </html>
+  );
+}
+
+export default function App() {
+  return <Outlet />;
+}

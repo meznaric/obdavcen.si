@@ -1,21 +1,75 @@
-import { SharedInputs, YearSettings } from "~/constants/types";
+import type { ReactNode } from "react";
 import { CoinsEuroIcon, InformationCircleIcon } from "hugeicons-react";
+import type { SharedInputs, YearSettings } from "~/constants/types";
 import CurrencyInput from "~/ui/common/Input/CurrencyInput";
-import { getMinimalnaOsnova, getRealniPrispevek } from "~/utils/prispevki";
-import formatCurrency from "~/utils/formatCurrency";
-import { AnimatePresence, motion } from "framer-motion";
-import { getNormiraniExpenses } from "~/utils/taxCalculator/normiraniSp";
-import { getOlajsavaVzdrzevaniClani } from "~/utils/dohodnina";
-import { getNagradaMax } from "~/utils/taxCalculator/doo";
 import { Tabs } from "~/ui/common/Tabs/Tabs";
 import { ToggleOption } from "~/ui/common/ToggleOption/ToggleOption";
+import { getOlajsavaVzdrzevaniClani } from "~/utils/dohodnina";
+import { evri, evriInCenti } from "~/utils/numberFormat";
+import { getMinimalnaOsnova, getRealniPrispevek } from "~/utils/prispevki";
+import { getNagradaMax } from "~/utils/taxCalculator/doo";
+import { getNormiraniSPData } from "~/utils/taxCalculator/normiraniSp";
+import { getSPData } from "~/utils/taxCalculator/sp";
+import type {
+  UpdateCurrentSettings,
+  UpdateSharedInputs,
+} from "./useSharedInputs";
 
 type Props = {
+  // Veljavne nastavitve (pri 16. členu brez pravic delavcev)
   currentSettings: YearSettings;
-  updateCurrentSettings: (settings: YearSettings) => void;
-  updateSharedInputs: (SharedInputs: SharedInputs) => void;
+  updateCurrentSettings: UpdateCurrentSettings;
+  updateSharedInputs: UpdateSharedInputs;
   sharedInputs: SharedInputs;
 };
+
+const FURS_ZAPOSLITEV =
+  "https://www.fu.gov.si/fileadmin/Internet/Davki_in_druge_dajatve/Podrocja/Dohodnina/Dohodek_iz_zaposlitve/Opis/";
+
+function Vir({ href, children }: { href: string; children: ReactNode }) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="link link-accent text-xs"
+    >
+      {children}
+    </a>
+  );
+}
+
+function RadioOption({
+  name,
+  checked,
+  onChange,
+  label,
+  description,
+}: {
+  name: string;
+  checked: boolean;
+  onChange: () => void;
+  label: string;
+  description?: string;
+}) {
+  return (
+    <label className="flex cursor-pointer items-start gap-2 rounded-lg p-2 hover:bg-base-200">
+      <input
+        type="radio"
+        name={name}
+        className="radio radio-sm mt-0.5 radio-accent"
+        checked={checked}
+        onChange={onChange}
+      />
+      <span>
+        <span className="block text-sm">{label}</span>
+        {description && (
+          <span className="block text-xs text-muted">{description}</span>
+        )}
+      </span>
+    </label>
+  );
+}
 
 export default function ExtraSettings({
   currentSettings,
@@ -23,549 +77,312 @@ export default function ExtraSettings({
   updateSharedInputs,
   sharedInputs,
 }: Props) {
-  const handleNumberChange =
-    (field: keyof YearSettings) => (value: string | number) => {
-      updateCurrentSettings({
-        ...currentSettings,
-        [field]: value,
-      });
-    };
+  const nastavi =
+    <K extends keyof YearSettings>(field: K) =>
+    (value: YearSettings[K]) =>
+      updateCurrentSettings({ [field]: value } as Partial<YearSettings>);
 
-  const handleSharedInputsChange =
-    (field: keyof SharedInputs) => (value: string | number) => {
-      updateSharedInputs({
-        ...sharedInputs,
-        [field]: value,
-      });
-    };
-
-  const spZavarovanecClen = currentSettings.spZavarovanecClen ?? 15;
-
+  // Ocene lanskih prispevkov, kot jih brez vnosa uporabi kalkulator
+  const brezLanskih = { ...sharedInputs, lanskiPrispevki: undefined };
   const { prispevki: minimalniPrispevki } = getRealniPrispevek(
-    getMinimalnaOsnova(currentSettings.averageIncomeLastYear, spZavarovanecClen),
+    getMinimalnaOsnova(currentSettings.averageIncomeLastYear, 15),
     { revenue: 0, expenses: 0, salaryGross1: 0 },
     currentSettings
   );
-
-  const { prispevki: lanskiPrispevki } = getRealniPrispevek(
-    getMinimalnaOsnova(currentSettings.averageIncomeLastYear, spZavarovanecClen),
-    sharedInputs,
-    currentSettings
-  );
-
-  const { prispevki: lanskiPrispevkiNormiranec } = getRealniPrispevek(
-    getMinimalnaOsnova(currentSettings.averageIncomeLastYear, spZavarovanecClen),
+  const ocene = [
+    { label: "Najnižji prispevki", znesek: minimalniPrispevki },
     {
-      ...sharedInputs,
-      expenses: getNormiraniExpenses(
-        sharedInputs.revenue,
-        currentSettings.normiranSPAcceptedExpenses
-      ),
+      label: "Normirani s. p. z enakimi prihodki",
+      znesek: getNormiraniSPData(brezLanskih, currentSettings).lanskiPrispevki,
     },
-    currentSettings
-  );
+    {
+      label: "S. p. z enakimi prihodki",
+      znesek: getSPData(brezLanskih, currentSettings).lanskiPrispevki,
+    },
+  ];
+  const imaLanske =
+    !!sharedInputs.lanskiPrispevki && !isNaN(sharedInputs.lanskiPrispevki);
 
-  const splosnoContent = (
-    <div className="flex flex-col py-2">
-      <CurrencyInput
-        icon={<CoinsEuroIcon className="size-5" />}
-        label="Lanski prispevki (Vpliva na SP in Normirani SP)"
-        placeholder={`Nastavi poljubno vrednost...`}
-        value={sharedInputs.lanskiPrispevki || 0}
-        description={
-          <table className="table-zebra table-xs">
-            <tbody>
-              <tr>
-                <td>Minimalni prispevki</td>
-                <td>{formatCurrency(minimalniPrispevki)}</td>
-                <td>
-                  <button
-                    className="link-accent"
-                    onClick={() =>
-                      handleSharedInputsChange("lanskiPrispevki")(
-                        minimalniPrispevki
-                      )
-                    }
-                  >
-                    Izberi
-                  </button>
-                </td>
-              </tr>
-              <tr>
-                <td>Normirani SP</td>
-                <td>{formatCurrency(lanskiPrispevkiNormiranec)}</td>
-                <td>
-                  <button
-                    className="link-accent"
-                    onClick={() =>
-                      handleSharedInputsChange("lanskiPrispevki")(
-                        lanskiPrispevkiNormiranec
-                      )
-                    }
-                  >
-                    Izberi
-                  </button>
-                </td>
-              </tr>
-              <tr>
-                <td>SP</td>
-                <td>{formatCurrency(lanskiPrispevki)}</td>
-                <td>
-                  <button
-                    className="link-accent"
-                    onClick={() =>
-                      handleSharedInputsChange("lanskiPrispevki")(
-                        lanskiPrispevki
-                      )
-                    }
-                  >
-                    Izberi
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        }
-        onChange={handleSharedInputsChange("lanskiPrispevki")}
-      />
-      <AnimatePresence>
-        {(!sharedInputs.lanskiPrispevki ||
-          isNaN(sharedInputs.lanskiPrispevki)) && (
-          <motion.div
-            className="overflow-hidden"
-            initial={{ height: 0 }}
-            animate={{ height: "auto" }}
-            exit={{ height: 0 }}
-          >
-            <div className="alert text-sm alert-bordered">
-              <InformationCircleIcon className="size-5 text-blue-500" />
-              <div>
-                Prispevki so odvisni od dobička in lanskih prispevkov.
-                <br /> Ta kalkulator se poizkuša približati realnim prispevkom s
-                tem da naredi 2 iteraciji.
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-      <CurrencyInput
-        icon={<CoinsEuroIcon className="size-5" />}
-        label="Povprečna plača"
-        value={currentSettings.averageIncomeLastYear}
-        onChange={handleNumberChange("averageIncomeLastYear")}
-        description="Vpliva na izračun prispevkov, minimalne in maksimalne zavarovalne osnove"
-      />
-      <CurrencyInput
-        icon={<CoinsEuroIcon className="size-5" />}
-        label="Minimalna plača"
-        value={currentSettings.minimalnaPlaca}
-        onChange={handleNumberChange("minimalnaPlaca")}
-        description="Vpliva na končno plačo pri 'DOO Minimalna Plača'"
-      />
-    </div>
-  );
-
+  const znizanje = currentSettings.spZnizaniPrispevki ?? "brez";
   const spContent = (
     <div className="flex flex-col gap-3 py-2">
-      <div>
-        <p className="text-sm font-medium mb-2">Zavarovanec status (ZPIZ-2)</p>
-        <div className="flex flex-col gap-1">
-          <label className="flex items-center gap-2 cursor-pointer p-2 rounded-lg hover:bg-base-200">
-            <input
-              type="radio"
-              className="radio radio-sm radio-accent"
-              checked={spZavarovanecClen === 15}
-              onChange={() =>
-                updateCurrentSettings({
-                  ...currentSettings,
-                  spZavarovanecClen: 15,
-                })
-              }
-            />
-            <div>
-              <span className="text-sm">Samozaposlen (člen 15)</span>
-              <p className="text-xs text-gray-500">
-                Min. osnova: 60% povprečne plače, množitelj: 0,75
-              </p>
-            </div>
-          </label>
-          <label className="flex items-center gap-2 cursor-pointer p-2 rounded-lg hover:bg-base-200">
-            <input
-              type="radio"
-              className="radio radio-sm radio-accent"
-              checked={spZavarovanecClen === 16}
-              onChange={() =>
-                updateCurrentSettings({
-                  ...currentSettings,
-                  spZavarovanecClen: 16,
-                })
-              }
-            />
-            <div>
-              <span className="text-sm">Družbenik (člen 16)</span>
-              <p className="text-xs text-gray-500">
-                Min. osnova: 90% povprečne plače, brez množitelja
-              </p>
-            </div>
-          </label>
-          <label className="flex items-center gap-2 cursor-pointer p-2 rounded-lg hover:bg-base-200">
-            <input
-              type="radio"
-              className="radio radio-sm radio-accent"
-              checked={spZavarovanecClen === 17}
-              onChange={() =>
-                updateCurrentSettings({
-                  ...currentSettings,
-                  spZavarovanecClen: 17,
-                })
-              }
-            />
-            <div>
-              <span className="text-sm">Kmet (člen 17)</span>
-              <p className="text-xs text-gray-500">
-                Min. osnova: 60% povprečne plače, množitelj: 0,75
-              </p>
-            </div>
-          </label>
-        </div>
-      </div>
-      <p className="text-xs text-gray-500">
-        Vpliva na minimalno zavarovalno osnovo in množitelj za izračun
-        prispevkov. Člen 16 (družbenik) ima višjo minimalno osnovo (90% vs 60%)
-        in ne uporablja množitelja 0,75.
-      </p>
-      <a
-        href="https://zakonodaja.com/pravilnik/zpiz-2-pdzo/2-clen-zavarovalna-osnova"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="link link-accent text-xs"
-      >
-        Vir: ZPIZ-2-PDZO, 2. člen — Zavarovalna osnova
-      </a>
+      <fieldset>
+        <legend className="mb-2 text-sm font-medium">
+          Znižani prispevki za nov s.&nbsp;p.
+        </legend>
+        <RadioOption
+          name="sp-znizani"
+          checked={znizanje === "brez"}
+          onChange={() => nastavi("spZnizaniPrispevki")("brez")}
+          label="Brez znižanja"
+        />
+        <RadioOption
+          name="sp-znizani"
+          checked={znizanje === "prvo"}
+          onChange={() => nastavi("spZnizaniPrispevki")("prvo")}
+          label="Prvo leto – prispevki za PIZ 50 % nižji"
+          description="Prvih 12 mesecev po prvem vpisu v register"
+        />
+        <RadioOption
+          name="sp-znizani"
+          checked={znizanje === "drugo"}
+          onChange={() => nastavi("spZnizaniPrispevki")("drugo")}
+          label="Drugo leto – prispevki za PIZ 30 % nižji"
+          description="Od 13. do 24. meseca poslovanja"
+        />
+      </fieldset>
+      <Vir href="https://pisrs.si/pregledPredpisa?id=ZAKO6280">
+        Vir: ZPIZ-2, 145. člen
+      </Vir>
 
       <div className="divider my-0" />
 
-      <div>
-        <p className="text-sm font-medium mb-2">Znižani prispevki (novo registrirani S.P.)</p>
-        <div className="flex flex-col gap-1">
-          <label className="flex items-center gap-2 cursor-pointer p-2 rounded-lg hover:bg-base-200">
-            <input
-              type="radio"
-              className="radio radio-sm radio-accent"
-              checked={!currentSettings.spZnizaniPrispevki || currentSettings.spZnizaniPrispevki === 'brez'}
-              onChange={() =>
-                updateCurrentSettings({
-                  ...currentSettings,
-                  spZnizaniPrispevki: 'brez',
-                })
-              }
-            />
-            <div>
-              <span className="text-sm">Brez znižanja</span>
-            </div>
-          </label>
-          <label className="flex items-center gap-2 cursor-pointer p-2 rounded-lg hover:bg-base-200">
-            <input
-              type="radio"
-              className="radio radio-sm radio-accent"
-              checked={currentSettings.spZnizaniPrispevki === 'prvo'}
-              onChange={() =>
-                updateCurrentSettings({
-                  ...currentSettings,
-                  spZnizaniPrispevki: 'prvo',
-                })
-              }
-            />
-            <div>
-              <span className="text-sm">Prvo leto — 50% znižanje PIZ prispevkov</span>
-              <p className="text-xs text-gray-500">
-                Prvih 12 mesecev poslovanja
-              </p>
-            </div>
-          </label>
-          <label className="flex items-center gap-2 cursor-pointer p-2 rounded-lg hover:bg-base-200">
-            <input
-              type="radio"
-              className="radio radio-sm radio-accent"
-              checked={currentSettings.spZnizaniPrispevki === 'drugo'}
-              onChange={() =>
-                updateCurrentSettings({
-                  ...currentSettings,
-                  spZnizaniPrispevki: 'drugo',
-                })
-              }
-            />
-            <div>
-              <span className="text-sm">Drugo leto — 30% znižanje PIZ prispevkov</span>
-              <p className="text-xs text-gray-500">
-                Naslednjih 12 mesecev poslovanja (13.–24. mesec)
-              </p>
-            </div>
-          </label>
+      <CurrencyInput
+        icon={<CoinsEuroIcon className="size-5" />}
+        label="Lanski prispevki (s.&nbsp;p. in normirani s.&nbsp;p.)"
+        placeholder="Oceni samodejno"
+        value={sharedInputs.lanskiPrispevki || 0}
+        onChange={(lanskiPrispevki) => updateSharedInputs({ lanskiPrispevki })}
+        description={
+          <table className="table-xs table-zebra mt-1">
+            <tbody>
+              {ocene.map(({ label, znesek }) => (
+                <tr key={label}>
+                  <td>{label}</td>
+                  <td className="tabular-nums">{evri(znesek)}</td>
+                  <td>
+                    <button
+                      type="button"
+                      className="link link-accent"
+                      onClick={() =>
+                        updateSharedInputs({
+                          lanskiPrispevki: Math.round(znesek),
+                        })
+                      }
+                    >
+                      Izberi
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        }
+      />
+      {!imaLanske && (
+        <div className="alert alert-soft text-sm">
+          <InformationCircleIcon className="size-5 shrink-0 text-info" />
+          <span>
+            Prispevki so odvisni od dobička in lanskih prispevkov. Če lanskih
+            prispevkov ne vpišeš, jih ocenimo, kot da si imel lani enake
+            prihodke.
+          </span>
         </div>
-      </div>
-      <a
-        href="https://www.racunovodstvo.net/zakonodaja/zpiz/145-clen"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="link link-accent text-xs"
-      >
-        Vir: ZPIZ-2, 145. člen, odstavek 14 — Znižani prispevki za nove S.P.
-      </a>
+      )}
     </div>
   );
 
-  const malicaLetna =
-    currentSettings.malicaDnevniZnesek * 21 * 12;
+  const malicaLetna = currentSettings.malicaDnevniZnesek * 21 * 12;
+  const poslovodja = currentSettings.dooDruzbenikPoslovodja === true;
+  const leZaZaposlene = poslovodja
+    ? "le za zaposlene s pogodbo o zaposlitvi."
+    : undefined;
+  const nagradaMax = getNagradaMax(currentSettings);
 
   const dooContent = (
     <div className="flex flex-col gap-3 py-2">
       <ToggleOption
-        label="Družbenik-poslovodja"
-        description="Za enoosebni D.O.O., kjer je lastnik hkrati poslovodja, se minimalna osnova za prispevke izračuna od 90% povprečne plače (zavarovalna podlaga 040), ne glede na dejansko bruto plačo."
-        value={currentSettings.dooDruzbenikPoslovodja !== false}
-        onValueChange={(value) =>
-          updateCurrentSettings({
-            ...currentSettings,
-            dooDruzbenikPoslovodja: value,
-          })
-        }
+        label="Poslovodja brez pogodbe o zaposlitvi"
+        description="Velja, če kot poslovodja nimaš pogodbe o zaposlitvi v svoji družbi in nisi zavarovan na drugi podlagi (zavarovalna podlaga 040, 16. člen ZPIZ-2). Najnižja osnova za prispevke je 90 % povprečne plače, najvišja pa 3,5-kratnik povprečne plače. Regres, zimski regres in neobdavčeno plačilo za poslovno uspešnost so pravice delavcev, zato jih v tem primeru ni. Če si v svoji družbi zaposlen, si zavarovan kot delavec (podlaga 001) z najnižjo osnovo 60 % povprečne plače."
+        value={poslovodja}
+        onValueChange={nastavi("dooDruzbenikPoslovodja")}
       />
-      <a
-        href="https://mladipodjetnik.si/novice-in-dogodki/novice/prispevki-za-enoosebni-d-o-o-za-poslovodne-osebe"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="link link-accent text-xs"
-      >
-        Vir: Mladi Podjetnik
-      </a>
-      <ToggleOption
-        label="Malica"
-        description={`Povračilo stroškov prehrane med delom — ${formatCurrency(currentSettings.malicaDnevniZnesek)}/dan × 21 dni × 12 mes. = ${formatCurrency(malicaLetna)}/leto. Neobdavčeno do zakonske meje.`}
-        value={currentSettings.malica !== false}
-        onValueChange={(value) =>
-          updateCurrentSettings({
-            ...currentSettings,
-            malica: value,
-          })
-        }
-      />
-      <a
-        href="https://podjetnik.aktualno.si/malica-2025-povracilo-stroska-prehrane-med-delom/"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="link link-accent text-xs"
-      >
-        Vir: 44. člen ZDoh-2, Uredba o višini povračil stroškov v zvezi z delom
-      </a>
+      <Vir href="https://www.fu.gov.si/fileadmin/Internet/Davki_in_druge_dajatve/Podrocja/Prispevki_za_socialno_varnost/Opis/Placevanje_prispevkov_za_socialno_varnost_za_zavarovance_-_druzbenike.doc">
+        Vir: FURS, Plačevanje prispevkov za socialno varnost za zavarovance –
+        družbenike
+      </Vir>
+
+      <div className="divider my-0" />
 
       <ToggleOption
-        label="Prevozni stroški"
-        description={`Povračilo stroškov prevoza na delo — ${formatCurrency(currentSettings.prevozniStroskiMesecniZnesek)}/mes. × 12 mes. = ${formatCurrency(currentSettings.prevozniStroskiMesecniZnesek * 12)}/leto. Neobdavčeno do 0,21 €/km.`}
+        label="Malica"
+        description={`Povračilo stroškov prehrane med delom: ${evriInCenti(currentSettings.malicaDnevniZnesek)} na dan × 21 dni × 12 mesecev = ${evri(malicaLetna)} na leto. Neobdavčeno do zakonske meje.`}
+        value={currentSettings.malica !== false}
+        onValueChange={nastavi("malica")}
+      />
+      <ToggleOption
+        label="Prevoz na delo"
+        description={`Povračilo stroškov prevoza na delo: ${evri(currentSettings.prevozniStroskiMesecniZnesek)} na mesec, ${evri(currentSettings.prevozniStroskiMesecniZnesek * 12)} na leto. Neobdavčeno do 0,21\u00a0€ na kilometer oziroma najmanj do 140\u00a0€ na mesec.`}
         value={currentSettings.prevozniStroski === true}
-        onValueChange={(value) =>
-          updateCurrentSettings({
-            ...currentSettings,
-            prevozniStroski: value,
-          })
-        }
+        onValueChange={nastavi("prevozniStroski")}
       />
       {currentSettings.prevozniStroski && (
         <CurrencyInput
           icon={<CoinsEuroIcon className="size-5" />}
           label="Mesečni znesek prevoza"
           value={currentSettings.prevozniStroskiMesecniZnesek}
-          onChange={handleNumberChange("prevozniStroskiMesecniZnesek")}
-          description="Prilagodite glede na dejansko razdaljo (0,21 €/km × razdalja × 21 dni)"
+          onChange={nastavi("prevozniStroskiMesecniZnesek")}
+          description="Prilagodi glede na dejansko razdaljo do dela."
         />
       )}
-      <a
-        href="https://data.si/blog/kilometrina-2025/"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="link link-accent text-xs"
-      >
-        Vir: Uredba o višini povračil stroškov v zvezi z delom, 3. člen
-      </a>
+      <Vir href={`${FURS_ZAPOSLITEV}Povracila_stroskov_in_drugi_dohodki_iz_delovnega_razmerja.docx`}>
+        Vir: FURS, Povračila stroškov in drugi dohodki iz delovnega razmerja
+      </Vir>
 
-      <ToggleOption
-        label="Regres za letni dopust"
-        description={`Obvezno letno izplačilo — neobdavčen do ${formatCurrency(currentSettings.averageIncomeLastYear)} (100% povprečne plače).`}
-        value={currentSettings.regres !== false}
-        onValueChange={(value) =>
-          updateCurrentSettings({
-            ...currentSettings,
-            regres: value,
-          })
-        }
-      />
-      <a
-        href="https://cekin.si/zaposlitev/zaposleni/za-toliko-se-bo-letos-zvisal-regres.html"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="link link-accent text-xs"
+      {/* Onemogočen fieldset onemogoči tudi stikala v njem */}
+      <fieldset
+        disabled={poslovodja}
+        className="flex flex-col gap-3 disabled:opacity-60"
       >
-        Vir: 131. člen ZDR-1, 44. člen ZDoh-2
-      </a>
-
-      <ToggleOption
-        label="Božičnica / Zimski regres"
-        description={
-          currentSettings.bozicnicaOprostPrispevkov
-            ? `Pol minimalne plače (${formatCurrency(currentSettings.minimalnaPlaca / 2)}) — brez dohodnine in prispevkov.`
-            : `Pol minimalne plače (${formatCurrency(currentSettings.minimalnaPlaca / 2)}) — brez dohodnine, prispevki se obračunajo.`
-        }
-        value={currentSettings.bozicnica !== false}
-        onValueChange={(value) =>
-          updateCurrentSettings({
-            ...currentSettings,
-            bozicnica: value,
-          })
-        }
-      />
-      <a
-        href="https://data.si/blog/bozicnica-ni-obdavcena-a-od-nje-so-odvedeni-prispevki/"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="link link-accent text-xs"
-      >
-        Vir: ZPZR 12. člen, 44. člen ZDoh-2
-      </a>
-
-      <ToggleOption
-        label="Nagrada za poslovno uspešnost"
-        description={`Neobdavčena do ${formatCurrency(getNagradaMax(currentSettings))} (100% povprečne plače${currentSettings.bozicnicaLocenOdNagrade ? '' : ' minus božičnica'}). Prispevki se obračunajo.`}
-        value={currentSettings.nagradaPoslovnaUspesnost !== false}
-        onValueChange={(value) =>
-          updateCurrentSettings({
-            ...currentSettings,
-            nagradaPoslovnaUspesnost: value,
-          })
-        }
-      />
-      {currentSettings.nagradaPoslovnaUspesnost !== false && (
-        <CurrencyInput
-          icon={<CoinsEuroIcon className="size-5" />}
-          label="Znesek nagrade"
-          value={currentSettings.nagradaZnesek ?? getNagradaMax(currentSettings)}
-          onChange={handleNumberChange("nagradaZnesek")}
-          description={`Prilagodite glede na dejanski znesek (največ ${formatCurrency(getNagradaMax(currentSettings))} neobdavčeno)`}
+        {leZaZaposlene && (
+          <p className="text-sm text-muted">
+            Regres, božičnica in nagrada: {leZaZaposlene}
+          </p>
+        )}
+        <ToggleOption
+          label="Regres za letni dopust"
+          description={`Neobdavčen do 100\u00a0% povprečne plače (${evri(currentSettings.povprecnaPlacaDavcnoLeto)}).`}
+          value={currentSettings.regres !== false}
+          onValueChange={nastavi("regres")}
         />
-      )}
-      <a
-        href="https://www.konto.si/aktualno/82/placilo_za_poslovno_uspesnost_bozicnica_zimski_regres/"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="link link-accent text-xs"
-      >
-        Vir: 44. člen ZDoh-2
-      </a>
+        <Vir href={`${FURS_ZAPOSLITEV}Regres_za_letni_dopust.doc`}>
+          Vir: FURS, Regres za letni dopust
+        </Vir>
+
+        <ToggleOption
+          label="Božičnica oziroma zimski regres"
+          description={`Pol minimalne plače (${evri(currentSettings.minimalnaPlaca / 2)}), brez dohodnine${currentSettings.bozicnicaOprostPrispevkov ? " in prispevkov" : "; prispevki se obračunajo"}.`}
+          value={currentSettings.bozicnica !== false}
+          onValueChange={nastavi("bozicnica")}
+        />
+        <Vir href={`${FURS_ZAPOSLITEV}Dohodek_iz_delovnega_razmerja.doc`}>
+          Vir: FURS, Dohodek iz delovnega razmerja
+        </Vir>
+
+        <ToggleOption
+          label="Nagrada za poslovno uspešnost"
+          description={`Neobdavčena do ${evri(nagradaMax)} (100\u00a0% povprečne plače${currentSettings.bozicnicaLocenOdNagrade ? "" : ", zmanjšano za božičnico"}). Prispevki se obračunajo.`}
+          value={currentSettings.nagradaPoslovnaUspesnost !== false}
+          onValueChange={nastavi("nagradaPoslovnaUspesnost")}
+        />
+        {currentSettings.nagradaPoslovnaUspesnost !== false && (
+          <CurrencyInput
+            icon={<CoinsEuroIcon className="size-5" />}
+            label="Znesek nagrade"
+            value={currentSettings.nagradaZnesek ?? nagradaMax}
+            onChange={nastavi("nagradaZnesek")}
+            description={`Neobdavčeno največ ${evri(nagradaMax)}.`}
+          />
+        )}
+        <Vir href={`${FURS_ZAPOSLITEV}Placilo_za_poslovno_uspesnost_za_izplacila_od_1_1_2023_dalje.doc`}>
+          Vir: FURS, Plačilo za poslovno uspešnost
+        </Vir>
+      </fieldset>
     </div>
   );
 
   const steviloOtrok = currentSettings.steviloOtrok ?? 0;
   const olajsavaVzdrzevaniTotal = getOlajsavaVzdrzevaniClani(currentSettings);
-  const pdpzZnesek = currentSettings.pdpzZnesek ?? 2400;
+  const olajsavaZaOtroke =
+    olajsavaVzdrzevaniTotal -
+    (currentSettings.vzdrzevaniDrugiClani
+      ? currentSettings.olajsavaZaDrugeClane
+      : 0);
+  const lestvica =
+    "https://www.fu.gov.si/fileadmin/Internet/Davki_in_druge_dajatve/Podrocja/Dohodnina/Letna_odmera_dohodnine/Opis/Lestvica_za_leto_2026.docx";
 
   const olajsaveContent = (
     <div className="flex flex-col gap-3 py-2">
-      <div>
-        <p className="text-sm font-medium mb-2">Vzdrževani otroci</p>
-        <p className="text-xs text-gray-500 mb-2">
-          Posebna olajšava za vzdrževane otroke — zmanjša davčno osnovo za dohodnino.
-          Velja za S.P. in D.O.O. (na plačo). Ne velja za normirani S.P.
+      <fieldset>
+        <legend className="mb-1 text-sm font-medium">Vzdrževani otroci</legend>
+        <p className="mb-2 text-xs text-muted">
+          Posebna olajšava zniža davčno osnovo za dohodnino. Velja za s.&nbsp;p. in
+          za plačo v d.&nbsp;o.&nbsp;o., ne pa za normirani s.&nbsp;p.
         </p>
-        <div className="flex gap-1">
+        <div className="flex flex-wrap gap-1">
           {[0, 1, 2, 3, 4, 5].map((n) => (
             <button
+              type="button"
               key={n}
-              className={`btn btn-sm ${
-                steviloOtrok === n ? "btn-accent" : "btn-ghost"
-              }`}
-              onClick={() =>
-                updateCurrentSettings({
-                  ...currentSettings,
-                  steviloOtrok: n,
-                })
-              }
+              aria-pressed={steviloOtrok === n}
+              className={`btn btn-sm ${steviloOtrok === n ? "btn-accent" : "btn-ghost"}`}
+              onClick={() => nastavi("steviloOtrok")(n)}
             >
               {n}
             </button>
           ))}
         </div>
         {steviloOtrok > 0 && (
-          <p className="text-xs text-gray-500 mt-1">
-            Olajšava: {formatCurrency(olajsavaVzdrzevaniTotal - (currentSettings.vzdrzevaniDrugiClani ? currentSettings.olajsavaZaDrugeClane : 0))}/leto
+          <p className="mt-1 text-xs text-muted">
+            Olajšava: {evri(olajsavaZaOtroke)} na leto
           </p>
         )}
-      </div>
-      <a
-        href="https://www.zvezarfr.si/pripomocki/uporabni-podatki/a-lestvica-za-odmero-dohodnine"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="link link-accent text-xs"
-      >
-        Vir: 114. člen ZDoh-2 — Posebna olajšava za vzdrževane družinske člane
-      </a>
+      </fieldset>
 
       <ToggleOption
-        label="Vzdrževan zakonec/partner"
-        description={`Olajšava za vzdrževanega družinskega člana — ${formatCurrency(currentSettings.olajsavaZaDrugeClane)}/leto. Pogoj: zakonec/partner brez lastnih dohodkov ali z dohodki pod zakonsko mejo.`}
+        label="Vzdrževani zakonec ali partner"
+        description={`Olajšava za vzdrževanega družinskega člana: ${evri(currentSettings.olajsavaZaDrugeClane)} na leto. Pogoj: zakonec ali partner nima lastnih dohodkov oziroma so ti pod zakonsko mejo.`}
         value={currentSettings.vzdrzevaniDrugiClani === true}
-        onValueChange={(value) =>
-          updateCurrentSettings({
-            ...currentSettings,
-            vzdrzevaniDrugiClani: value,
-          })
-        }
+        onValueChange={nastavi("vzdrzevaniDrugiClani")}
       />
-
       {olajsavaVzdrzevaniTotal > 0 && (
-        <div className="text-xs bg-base-200 rounded-lg p-2">
-          Skupna olajšava za vzdrževane člane: <span className="font-semibold">{formatCurrency(olajsavaVzdrzevaniTotal)}/leto</span>
-        </div>
+        <p className="rounded-lg bg-base-200 p-2 text-xs">
+          Skupna olajšava za vzdrževane družinske člane:{" "}
+          <span className="font-semibold">
+            {evri(olajsavaVzdrzevaniTotal)} na leto
+          </span>
+        </p>
       )}
 
       <div className="divider my-0" />
 
       <ToggleOption
         label="Dodatno pokojninsko zavarovanje (PDPZ)"
-        description={`Prostovoljno dodatno pokojninsko zavarovanje — za S.P. zmanjša davčno osnovo, za D.O.O. je strošek podjetja. Največ ${formatCurrency(currentSettings.pdpzMaxZnesek)}/leto (5,844% bruto plače).`}
+        description={`Prostovoljno dodatno pokojninsko zavarovanje. Pri s. p. zniža davčno osnovo, pri d. o. o. premijo plača družba. Največ 24\u00a0% obveznih prispevkov za PIZ in ne več kot ${evri(currentSettings.pdpzMaxZnesek)} na leto.`}
         value={currentSettings.pdpz === true}
-        onValueChange={(value) =>
-          updateCurrentSettings({
-            ...currentSettings,
-            pdpz: value,
-          })
-        }
+        onValueChange={nastavi("pdpz")}
       />
       {currentSettings.pdpz && (
         <CurrencyInput
           icon={<CoinsEuroIcon className="size-5" />}
           label="Letni znesek PDPZ"
-          value={pdpzZnesek}
-          onChange={handleNumberChange("pdpzZnesek")}
-          description={`Prilagodite glede na vaš znesek vplačil (največ ${formatCurrency(currentSettings.pdpzMaxZnesek)}/leto)`}
+          value={currentSettings.pdpzZnesek ?? 2400}
+          onChange={nastavi("pdpzZnesek")}
+          description={`Vpiši svoja vplačila, največ ${evri(currentSettings.pdpzMaxZnesek)} na leto.`}
         />
       )}
-      <a
-        href="https://www.pokojninskad-a.si/varcevanje/dodatno-pokojninsko-zavarovanje-davcna-olajsava"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="link link-accent text-xs"
-      >
-        Vir: 117. člen ZDoh-2 — Olajšava za prostovoljno dodatno pokojninsko zavarovanje
-      </a>
+      <Vir href={lestvica}>
+        Vir: FURS, Lestvica za odmero dohodnine za leto 2026
+      </Vir>
+    </div>
+  );
+
+  const naprednoContent = (
+    <div className="flex flex-col gap-3 py-2">
+      <CurrencyInput
+        icon={<CoinsEuroIcon className="size-5" />}
+        label="Povprečna mesečna plača"
+        value={currentSettings.averageIncomeLastYear}
+        onChange={nastavi("averageIncomeLastYear")}
+        description="Vpliva na prispevke ter na najnižjo in najvišjo zavarovalno osnovo."
+      />
+      <CurrencyInput
+        icon={<CoinsEuroIcon className="size-5" />}
+        label="Minimalna mesečna plača"
+        value={currentSettings.minimalnaPlaca}
+        onChange={nastavi("minimalnaPlaca")}
+        description="Vpliva na plačo pri »D.&nbsp;o.&nbsp;o. – največ dividend« in na božičnico."
+      />
     </div>
   );
 
   return (
     <Tabs
       tabs={[
-        { id: "splosno", label: "Splošno", content: splosnoContent },
         { id: "olajsave", label: "Olajšave", content: olajsaveContent },
-        { id: "sp", label: "S.P.", content: spContent },
-        { id: "doo", label: "D.O.O.", content: dooContent },
+        { id: "sp", label: "S. p.", content: spContent },
+        { id: "doo", label: "D. o. o.", content: dooContent },
+        { id: "napredno", label: "Napredno", content: naprednoContent },
       ]}
     />
   );

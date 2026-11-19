@@ -1,4 +1,4 @@
-import { useSelector } from "@xstate/store/react";
+import { useSelector } from "@xstate/store-react";
 import CurrencyInput from "~/ui/common/Input/CurrencyInput";
 import { store } from "~/utils/store";
 
@@ -7,7 +7,7 @@ export default function SharedInputs() {
   return (
     <div
       className="flex flex-row gap-4
-      bg-gray-100 dark:bg-gray-900
+      bg-base-200
       pt-2 pb-4 px-8 max-w-full rounded-lg
       "
     >

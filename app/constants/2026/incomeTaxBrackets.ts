@@ -1,6 +1,7 @@
 import { IncomeTaxBrackets } from "../types";
 
-// https://www.zvezarfr.si/pripomocki/uporabni-podatki/a-lestvica-za-odmero-dohodnine
+// FURS, Lestvica za odmero dohodnine za leto 2026
+// https://www.fu.gov.si/fileadmin/Internet/Davki_in_druge_dajatve/Podrocja/Dohodnina/Letna_odmera_dohodnine/Opis/Lestvica_za_leto_2026.docx
 export const incomeTaxBrackets: IncomeTaxBrackets = [
   {
     percentage: 0.16,

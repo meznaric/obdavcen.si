@@ -15,6 +15,8 @@ export default function formatCurrency(value: number, short = false) {
     currency: "EUR",
     minimumFractionDigits: short ? 0 : 2,
     maximumFractionDigits: short ? 0 : 2,
+    // sl-SI privzeto ne loči štirimestnih števil (9721 €), na strani pišemo 9.721 €
+    useGrouping: "always",
   });
 }
 

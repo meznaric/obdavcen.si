@@ -10,3 +10,4 @@ build/*
 !build/client
 !build/server
 .DS_Store
+.react-router

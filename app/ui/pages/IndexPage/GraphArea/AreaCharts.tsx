@@ -8,7 +8,7 @@ import {
   getTax,
   getTaxRate,
 } from "./useChartData";
-import { PositionScale } from "@visx/shape/lib/types";
+import type { PositionScale } from "@visx/shape";
 
 interface AreaChartsProps {
   chartData: DataPoint[];

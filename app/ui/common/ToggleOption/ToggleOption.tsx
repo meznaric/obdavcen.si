@@ -1,3 +1,4 @@
+import { useId } from "react";
 import { ToggleOffIcon, ToggleOnIcon } from "hugeicons-react";
 import { Text } from "../Text/Text";
 import { twMerge } from "tailwind-merge";
@@ -17,13 +18,16 @@ export function ToggleOption({
   value,
   onValueChange,
 }: ToggleOptionProps) {
+  const descriptionId = useId();
+
   return (
     <button
       role="switch"
       aria-checked={value}
       aria-label={label}
+      aria-describedby={description ? descriptionId : undefined}
       className={twMerge(
-        "group flex items-center gap-2 p-2 rounded-lg hover:bg-gray-200 focus:outline-none focus:bg-gray-200 transition-colors dark:hover:bg-gray-800 dark:focus:bg-gray-800",
+        "group flex items-center gap-2 p-2 rounded-lg transition-colors hover:bg-base-200 focus-visible:bg-base-200",
         className
       )}
       onClick={() => onValueChange(!value)}
@@ -35,21 +39,16 @@ export function ToggleOption({
       }}
     >
       {value ? (
-        <ToggleOnIcon className="w-8 h-8 text-accent transition-colors group-hover:text-accent/90 shrink-0" />
+        <ToggleOnIcon className="w-8 h-8 text-accent shrink-0" />
       ) : (
-        <ToggleOffIcon className="w-8 h-8 transition-colors group-hover:text-gray-700 shrink-0" />
+        <ToggleOffIcon className="w-8 h-8 shrink-0" />
       )}
-      <div
-        className={twMerge(
-          "text-left",
-          value ? "text-accent" : "text-gray-700"
-        )}
-      >
+      <div className={twMerge("text-left", value && "text-accent")}>
         <Text variant="bodyLarge" className="font-medium">
           {label}
         </Text>
         {description && (
-          <Text variant="bodySmall" className="text-gray-500">
+          <Text id={descriptionId} variant="bodySmall" className="text-muted">
             {description}
           </Text>
         )}

@@ -3,20 +3,20 @@
 ## Interesting facts
 
 ### 1. Mrtva cona
-Pri 0 € stroških se bolj splača imeti pogodbo za 60.000 € / leto kot za 87.000 € / leto, kajti Normirani SP je toliko bolj efektiven, da z drugimi oblikami lahko dobiš ven več šele pri 88.000 €+ / leto.
+Pri 0 € stroškov se bolj splača imeti pogodbo za 60.000 € na leto kot za 87.000 € na leto, saj je normirani s. p. toliko ugodnejši, da lahko z drugimi oblikami izplačaš več šele pri 88.000 € na leto ali več.
 
-Če pa imas 10.000 € stroškov, se ta razlika zniža iz 88.000 € na 80.000 €. Šele pri 37.000 € stroškov pa ta mrtva cona izgine.
+Če pa imaš 10.000 € stroškov, se ta meja zniža z 88.000 € na 80.000 €. Mrtva cona izgine šele pri 37.000 € stroškov.
 
 ### 2. Progresivna davčna lestvica skoraj ne obstaja
-Pri zelo nizkih vsotah je lestvica malenkost progresivna, ampak takoj po prihodkih ki so nad normirano mejo lahko vidimo da je izplačevanje z dividendami najbolj efektivno in da je krivulja skoraj ravna.
-Lestvica postane bolj progresivna več kot imamo stroškov.
+Pri zelo nizkih zneskih je lestvica malenkost progresivna, takoj ko prihodki presežejo mejo za normirance, pa vidimo, da je izplačevanje z dividendami najučinkovitejše in da je krivulja skoraj ravna.
+Lestvica postane tem bolj progresivna, čim več imamo stroškov.
 
 ### 3. Digitalni delavci na daljavo potegnejo kratko
-Ker imajo digitalni podjetniki na daljavo zelo nizke stroške so tako prisiljeni da plačajo zelo visoke davke. Se pravi podjetniki, ki pripeljejo denar v državo, jim kaže najslabše.
+Ker imajo digitalni podjetniki na daljavo zelo nizke stroške, morajo plačati zelo visoke davke. Prav podjetnikom, ki v državo pripeljejo denar, se torej godi najslabše.
 
 ## By Company Type
 
-### Normirani S.P.
+### Normirani s. p.
 
 #### 1. Social Security Contributions (Prispevki)
 
@@ -59,7 +59,7 @@ Advantages:
 - Lower administrative burden
 
 
-### S.P.
+### S. p.
 
 ### 1. Social Security Contributions (Prispevki)
 
@@ -95,7 +95,7 @@ Key points:
 - Minimum zavarovalna osnova ensures minimum contributions
 - General tax relief reduces taxable income
 
-### D.O.O. (Limited Liability Company)
+### D. o. o. (Limited Liability Company)
 
 #### 1. Salary Calculations
 

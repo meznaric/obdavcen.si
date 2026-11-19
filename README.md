@@ -4,27 +4,38 @@
 
 A Slovenian tax calculator for freelancers and remote workers. Enter your yearly
 revenue and expenses and it compares how much you pay in taxes and contributions,
-and how much you keep, as a **normirani s.p.**, a regular **s.p.**, or a
-**d.o.o.** with different salary/dividend strategies.
+and how much you keep, as a **normirani s. p.**, a regular **s. p.**, a
+**d. o. o.** with different salary/dividend strategies, employment by a **foreign
+employer**, or a **podjemna/avtorska pogodba**. If you already have a job, it
+also shows **popoldanski s. p.** (regular and normirani) and a dividends-only
+d. o. o.
 
 > Kalkulator davkov za samostojne podjetnike in delavce na daljavo. Primerja
-> normirani s.p., s.p. in d.o.o. ter pokaže, katera oblika se pri tvojih
+> normirani s. p., s. p. in d. o. o. ter pokaže, katera oblika se pri tvojih
 > prihodkih in stroških najbolj splača.
 
 [![obdavcen.si screenshot](docs/screenshot.png)](https://obdavcen.si)
 
 ## Features
 
-- Side-by-side comparison of normirani s.p., s.p., and d.o.o. (maximum salary,
-  minimum salary with maximum dividends, or a custom gross salary)
+- Side-by-side comparison of normirani s. p., s. p., d. o. o. (maximum salary,
+  minimum salary with maximum dividends, or a custom gross salary), employment
+  by a foreign employer, and podjemna/avtorska pogodba
+- Options for people who keep their job: popoldanski s. p., normirani
+  popoldanski s. p., and a d. o. o. paying only dividends. These count only the
+  extra tax caused on top of the salary, so they are shown as cards but not in
+  the chart.
 - Chart of the effective tax rate across income levels, highlighting the most
   efficient option at each point
+- [Stock and ETF tax page](https://obdavcen.si/davek-na-delnice-in-etf): a
+  planner for capital gains tax by holding period (regular account vs. INR) and
+  answers to common questions, each linked to its official source
 - Detailed breakdown of prispevki (social security contributions), dohodnina
   (income tax), and corporate tax for each option
 - Extra settings: last year's contributions, meal and travel allowances, regres,
   božičnica, performance bonus, additional pension insurance, and other tax relief
 - Tax constants per year (2025, 2026), each with links to official sources
-- Explainer articles (in Slovenian) on how to pay yourself out under each entity type
+- Explainer articles (in Slovenian) on how to pay yourself out under each entity type, including popoldanski s. p.
 
 The site, articles, and tax terminology are in Slovenian.
 
@@ -45,7 +56,7 @@ Other commands:
 
 ```sh
 yarn lint       # ESLint
-yarn typecheck  # tsc
+yarn typecheck  # react-router typegen + tsc
 yarn build      # production build
 yarn start      # serve the production build
 ```
@@ -68,8 +79,9 @@ All optional. Without them, everything except the newsletter form works.
 
 ## How it works
 
-Built with [Remix](https://remix.run) (Vite), React, TypeScript, Tailwind CSS +
-DaisyUI, [visx](https://airbnb.io/visx/) for charts, and MDX for articles.
+Built with [React Router](https://reactrouter.com) (framework mode, Vite), React,
+TypeScript, Tailwind CSS + DaisyUI, [visx](https://airbnb.io/visx/) for charts,
+and MDX for articles.
 
 ```
 app/

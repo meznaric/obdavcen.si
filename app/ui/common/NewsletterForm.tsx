@@ -1,6 +1,6 @@
 import { Button } from "./Button/Button";
 import { Input } from "./Input/Input";
-import { useFetcher } from "@remix-run/react";
+import { useFetcher } from "react-router";
 import { ArrowRight01Icon, CheckmarkCircle01Icon } from "hugeicons-react";
 
 export default function NewsletterForm() {
@@ -11,7 +11,7 @@ export default function NewsletterForm() {
     <fetcher.Form method="post" action="/newsletter">
       <Input
         name="email"
-        label="Email"
+        label="E-pošta"
         placeholder="vpis@email.si"
         className="w-full"
         type="email"

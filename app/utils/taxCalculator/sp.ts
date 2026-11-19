@@ -1,6 +1,7 @@
 import { SharedInputs, YearSettings } from "~/constants/types";
 import { getMinimalnaOsnova, getRealniPrispevek } from "../prispevki";
 import izracunDohodnine, { getTaxRelief, getOlajsavaVzdrzevaniClani, getPDPZOlajsava } from "../dohodnina";
+import { getDelez } from "./getDelez";
 
 export function getSPData(
   sharedInputs: SharedInputs,
@@ -22,15 +23,24 @@ export function getSPData(
       ? sharedInputs.lanskiPrispevki
       : lanskiPrispevkiGuess;
 
-  const { prispevki, prispevkiRate, zavarovalnaOsnova, dobicek } =
+  const { prispevki, prispevkiRate, zavarovalnaOsnova, dobicek, pizPrispevki } =
     getRealniPrispevek(lanskiPrispevki, sharedInputs, currentSettings);
 
-  const taxRelief = getTaxRelief(sharedInputs.revenue, currentSettings);
+  // Za dodatno splošno olajšavo se kot dohodek iz dejavnosti šteje dobiček
+  // brez obračunanih prispevkov (4. odstavek 111. člena ZDoh-2), ne prihodki
+  // https://pisrs.si/pregledPredpisa?id=ZAKO4697
+  const taxRelief = getTaxRelief(
+    Math.max(0, sharedInputs.revenue - sharedInputs.expenses),
+    currentSettings
+  );
   const olajsavaVzdrzevani = getOlajsavaVzdrzevaniClani(currentSettings);
-  const pdpzOlajsava = getPDPZOlajsava(currentSettings);
+  const pdpzOlajsava = getPDPZOlajsava(currentSettings, pizPrispevki);
 
-  const taxBase =
-    sharedInputs.revenue - prispevki - taxRelief - sharedInputs.expenses - olajsavaVzdrzevani - pdpzOlajsava;
+  // Davčna osnova ne more biti negativna
+  const taxBase = Math.max(
+    0,
+    sharedInputs.revenue - prispevki - taxRelief - sharedInputs.expenses - olajsavaVzdrzevani - pdpzOlajsava
+  );
 
   const { total: dohodnina, bracket } = izracunDohodnine(
     taxBase,
@@ -39,10 +49,10 @@ export function getSPData(
 
   const totalTax = dohodnina + prispevki;
   const totalNet = sharedInputs.revenue - totalTax;
-  const effectiveTaxRate = totalTax / sharedInputs.revenue;
+  const effectiveTaxRate = getDelez(totalTax, sharedInputs.revenue);
   const cistiPrihodki = totalNet - sharedInputs.expenses;
-  const cistiPrihodkiRate = cistiPrihodki / sharedInputs.revenue;
-  const expenseRate = sharedInputs.expenses / sharedInputs.revenue;
+  const cistiPrihodkiRate = getDelez(cistiPrihodki, sharedInputs.revenue);
+  const expenseRate = getDelez(sharedInputs.expenses, sharedInputs.revenue);
 
   return {
     cistiPrihodki,

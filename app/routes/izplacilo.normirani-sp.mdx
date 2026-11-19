@@ -1,12 +1,11 @@
 ---
-meta:
-  - title: Normirani SP v 2026 - Izračun davkov in prispevkov
-  - name: description
-    content: Izračun davkov in prispevkov za normirani SP v 2026. Primerjava med navadnim in normiranim SP, kalkulacija prispevkov in dohodnine ter pomoč pri izbiri poslovne oblike.
+title: Normirani s. p. v letu 2026 – izračun davkov in prispevkov
+description: Izračun davkov in prispevkov za normirani s. p. v letu 2026. Primerjava med navadnim in normiranim s. p., kalkulacija prispevkov in dohodnine ter pomoč pri izbiri poslovne oblike.
 ---
 
-export const meta = frontmatter.meta;
-export const headers = frontmatter.headers;
+import { articleMeta } from "../utils/seo";
+
+export const meta = articleMeta(frontmatter);
 
 import { IdeaIcon, ComputerDollarIcon, CalculatorIcon, Alert01Icon, CheckmarkCircle01Icon } from "hugeicons-react";
 import {
@@ -18,11 +17,15 @@ import {
   delodajalecStarsevsko,
   delodajalecBrezposelnost,
   delodajalecPoskodbe,
+  delodajalecDOrate,
+  zavarovanecDOrate,
   zavarovanecPIZrate,
   zavarovanecZZZSrate,
   zavarovanecStarsevsko,
   zavarovanecBrezposelnost,
   normiranSPAcceptedExpenses,
+  normiranOdhodkiMaxPrihodki,
+  normiranMaxRevenue,
   normiranTaxBrackets,
 } from "../constants/2026/constants";
 import CurrencyOutput from "../ui/pages/Blogs/CurrencyOutput";
@@ -30,15 +33,26 @@ import SharedInputs from "../ui/pages/Blogs/SharedInputs";
 import formatCurrency from "../utils/formatCurrency";
 import asPercent from "../utils/asPercent";
 
-# Normirani S.P. - Osnovni davčni izračuni
+# Normirani s. p. – osnovni davčni izračuni
 
 <div className="alert not-prose" role="alert">
-  <ComputerDollarIcon className="w-6 h-6 text-sky-500" />
+  <ComputerDollarIcon className="w-6 h-6 text-info" />
   <div>
-    <strong>Hitroprav</strong>
+    <strong>Opomba</strong>
     <br />
     <span className="text-sm">
-      Ta članek še je v nastajanju. Za izračune si poglejte [primerjavo](/).
+      Ta članek je še v nastajanju. Za izračune si poglej [primerjavo](/).
+    </span>
+  </div>
+</div>
+
+<div className="alert alert-warning not-prose my-4" role="alert">
+  <Alert01Icon className="w-6 h-6" />
+  <div>
+    <strong>Pravila za leto 2026 se lahko še spremenijo</strong>
+    <br />
+    <span className="text-sm">
+      Zakon ZIURS, o katerem bo 6. 12. 2026 potekal zakonodajni referendum, bi za leto 2026 normirancem, ki so bili vsaj pet mesecev zavarovani za polni delovni čas, priznal 80 % normiranih odhodkov do 100.000 € prihodkov, 70 % od 100.000 do 120.000 €, 40 % od 120.000 do 150.000 € in 0 % nad tem, veljala pa bi enotna 20-odstotna stopnja davka (brez 35-odstotnega razreda). V sistemu normirancev bi lahko ostal, dokler povprečje prihodkov zadnjih dveh let ne bi preseglo 150.000 €. Izračuni upoštevajo trenutno veljavni zakon (ZPZR). <a className="link" href="https://www.gov.si/novice/2026-10-16-ugotavljanje-davcne-osnove-z-normiranimi-odhodki-v-letu-2026-v-povezavi-z-interventnim-zakonom-ziurs/">Več na gov.si</a>
     </span>
   </div>
 </div>
@@ -67,17 +81,24 @@ import asPercent from "../utils/asPercent";
     </thead>
     <tbody>
       <tr>
-        <td>Mesečno zdravstveno zavarovanje</td>
+        <td>Obvezni zdravstveni prispevek (mesečno)</td>
         <td>{formatCurrency(zavarovanecOZPEur)}</td>
-        <td><a href="https://www.gov.si/novice/2023-12-29-z-novim-letom-prihaja-obvezni-zdravstveni-prispevek/" className="link">gov.si</a></td>
+        <td><a href="https://zavezanec.zzzs.si/fileadmin/user_upload/dokumenti/zavezanec/priloge/visina_ozp_2026.pdf" className="link">zzzs.si</a></td>
       </tr>
       <tr>
-        <td>Priznani stroški</td>
-        <td>{asPercent(normiranSPAcceptedExpenses / 100)}</td>
+        <td>Priznani normirani odhodki</td>
+        <td>{asPercent(normiranSPAcceptedExpenses / 100)} prihodkov, največ {formatCurrency(normiranOdhodkiMaxPrihodki * normiranSPAcceptedExpenses / 100, true)} (do {formatCurrency(normiranOdhodkiMaxPrihodki, true)} prihodkov)</td>
+        <td><a href="https://pisrs.si/pregledPredpisa?id=ZAKO4697" className="link">ZDoh-2, 59. člen</a></td>
       </tr>
       <tr>
-        <td>Davek na dobiček</td>
-        <td>{normiranTaxBrackets.map((b, i) => <span key={i}>{asPercent(b.percentage)}{b.maxNumber ? ` (do ${formatCurrency(b.maxNumber)})` : ''}{i < normiranTaxBrackets.length - 1 ? ', ' : ''}</span>)}</td>
+        <td>Davek od dobička</td>
+        <td>{normiranTaxBrackets.map((b, i) => <span key={i}>{asPercent(b.percentage)}{b.maxNumber ? ` (do ${formatCurrency(b.maxNumber)})` : ''}{i < normiranTaxBrackets.length - 1 ? ', ' : ''}</span>)}; dokončni davek, če si zavarovan za polni delovni čas</td>
+        <td><a href="https://pisrs.si/api/uradni-list/objava/u20260032.pdf" className="link">ZPZR-A</a></td>
+      </tr>
+      <tr>
+        <td>Meja prihodkov</td>
+        <td>povprečje zadnjih dveh let do {formatCurrency(normiranMaxRevenue, true)}</td>
+        <td><a href="https://www.gov.si/novice/2025-11-24-novosti-pri-ugotavljanju-davcne-osnove-z-upostevanjem-normiranih-odhodkov-v-letu-2026/" className="link">gov.si</a></td>
       </tr>
     </tbody>
     <thead>
@@ -91,12 +112,12 @@ import asPercent from "../utils/asPercent";
     </thead>
     <tbody>
       <tr>
-        <td>Pokojninsko in invalidsko (PIZ)</td>
+        <td>Pokojninsko in invalidsko zavarovanje (PIZ)</td>
         <td>{asPercent(delodajalecPIZrate + zavarovanecPIZrate)}</td>
       </tr>
       <tr>
         <td>Zdravstveno zavarovanje (ZZ)</td>
-        <td>{asPercent(delodajalecZZZSrate + delodajalecZZZSrate)}</td>
+        <td>{asPercent(delodajalecZZZSrate + zavarovanecZZZSrate)}</td>
       </tr>
       <tr>
         <td>Starševsko varstvo</td>
@@ -109,6 +130,10 @@ import asPercent from "../utils/asPercent";
       <tr>
         <td>Poškodbe pri delu</td>
         <td>{asPercent(delodajalecPoskodbe)}</td>
+      </tr>
+      <tr>
+        <td>Dolgotrajna oskrba (DO)</td>
+        <td>{asPercent(delodajalecDOrate + zavarovanecDOrate)}</td>
       </tr>
     </tbody>
   </table>

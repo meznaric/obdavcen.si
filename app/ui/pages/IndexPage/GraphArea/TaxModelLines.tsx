@@ -2,7 +2,7 @@ import { LinePath } from "@visx/shape";
 import { curveMonotoneX } from "@visx/curve";
 import { Group } from "@visx/group";
 import { taxModesByShortName } from "~/utils/taxModes";
-import { PositionScale } from "@visx/shape/lib/types";
+import type { PositionScale } from "@visx/shape";
 
 interface TaxModelLinesProps {
   taxModelLines: Record<

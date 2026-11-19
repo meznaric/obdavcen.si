@@ -1,6 +1,6 @@
 import { AxisBottom, AxisRight, AxisScale } from "@visx/axis";
 import { GridRows, GridColumns } from "@visx/grid";
-import formatCurrency from "~/utils/formatCurrency";
+import { evri } from "~/utils/numberFormat";
 
 interface AxesProps {
   xScale: AxisScale;
@@ -16,24 +16,26 @@ export function Axes({ xScale, yScaleRate, xMax, yMax }: AxesProps) {
         scale={yScaleRate}
         width={xMax}
         strokeDasharray="3,3"
-        stroke="rgba(236, 239, 241, 0.2)"
+        stroke="currentColor"
+        strokeOpacity={0.25}
       />
       <GridColumns
         scale={xScale}
         height={yMax}
         strokeDasharray="3,3"
-        stroke="rgba(236, 239, 241, 0.2)"
+        stroke="currentColor"
+        strokeOpacity={0.25}
       />
 
       <AxisBottom
         top={yMax}
         scale={xScale}
-        tickFormat={(value) => formatCurrency(value.valueOf(), true)}
-        stroke="#e0e0e0"
-        tickStroke="#e0e0e0"
+        tickFormat={(value) => evri(value.valueOf())}
+        stroke="currentColor"
+        tickStroke="currentColor"
         numTicks={5}
         tickLabelProps={{
-          fill: "#6b7280",
+          fill: "currentColor",
           fontSize: 12,
           textAnchor: "middle",
           dy: "0.5em",
@@ -43,11 +45,11 @@ export function Axes({ xScale, yScaleRate, xMax, yMax }: AxesProps) {
       <AxisRight
         scale={yScaleRate}
         left={xMax}
-        tickFormat={(value) => `${value.valueOf()}%`}
+        tickFormat={(value) => `${value.valueOf()}\u00a0%`}
         stroke="#00cdb8"
         tickStroke="#00cdb8"
         tickLabelProps={{
-          fill: "#00cdb8",
+          fill: "currentColor",
           fontSize: 12,
           textAnchor: "start",
           dx: "0.5em",

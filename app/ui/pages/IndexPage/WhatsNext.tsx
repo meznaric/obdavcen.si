@@ -1,4 +1,4 @@
-import { Link } from "@remix-run/react";
+import { Link } from "react-router";
 import { NewsIcon, InformationCircleIcon, Mail02Icon } from "hugeicons-react";
 import NewsletterForm from "~/ui/common/NewsletterForm";
 import { Text } from "~/ui/common/Text/Text";
@@ -14,9 +14,9 @@ export default function WhatsNext() {
         <div>
           <Text variant="h3">Uči se z mano</Text>
           <p className="py-2">
-            Pripravil sem newsletter, kjer vsake nekaj tednov delim nove stvari
-            ki sem se jih naučil. O davčnih optimizacijah, dela na daljavo in
-            podobno.
+            Pripravil sem e-novice, v katerih vsakih nekaj tednov delim nove
+            stvari, ki sem se jih naučil – o davčnih optimizacijah, delu na
+            daljavo in podobnem.
           </p>
           <NewsletterForm />
         </div>
@@ -26,7 +26,7 @@ export default function WhatsNext() {
         <div>
           <Text variant="h3">Kontaktiraj me</Text>
           <p className="py-2">
-            Si opazil napake, ali imaš predlog, kako bi lahko izboljšal to
+            Si opazil napake ali imaš predlog, kako bi lahko izboljšal to
             stran?
           </p>
           <Link

@@ -1,0 +1,344 @@
+---
+title: Popoldanski s. p. v letu 2026 – prispevki, dohodnina in normirani popoldanski s. p.
+description: Koliko davkov in prispevkov plača popoldanski s. p. v letu 2026? Pavšalni prispevki, dohodnina ob plači, normirani odhodki za popoldance in primeri izračuna ob redni zaposlitvi.
+---
+
+import { articleMeta } from "../utils/seo";
+
+export const meta = articleMeta(frontmatter);
+
+import { IdeaIcon, CalculatorIcon, Alert01Icon, CheckmarkCircle01Icon, ComputerDollarIcon } from "hugeicons-react";
+import { settingsByYear } from "../constants";
+import { incomeTaxBrackets } from "../constants/2026/incomeTaxBrackets";
+import {
+  popoldanskiPIZ,
+  popoldanskiZZPoskodbe,
+  popoldanskiZZ,
+  popoldanskiDO,
+  normiranPopoldanskiOdhodki,
+  normiranPopoldanskiTaxBrackets,
+  normiranPopoldanskiMaxRevenue,
+} from "../constants/2026/popoldanski";
+import { normiranMaxRevenue, ddpoTaxRate, dividendsTaxRate } from "../constants/2026/constants";
+import { getPopoldanskiPrispevki } from "../utils/prispevki";
+import CurrencyOutput from "../ui/pages/Blogs/CurrencyOutput";
+import SharedInputs from "../ui/pages/Blogs/SharedInputs";
+import formatCurrency from "../utils/formatCurrency";
+import asPercent from "../utils/asPercent";
+
+export const prispevki = getPopoldanskiPrispevki(settingsByYear[2026]);
+export const zadnji = (zneski) => zneski[zneski.length - 1].znesek;
+export const prvi = (zneski) => zneski[0].znesek;
+
+# Popoldanski s. p. – davki in prispevki ob redni zaposlitvi
+
+<div className="alert not-prose" role="alert">
+  <ComputerDollarIcon className="w-6 h-6 text-info" />
+  <div>
+    <strong>Na kratko</strong>
+    <br />
+    <span className="text-sm">
+      Popoldanski s. p. v letu 2026 plača okoli {formatCurrency(prispevki.skupaj)} pavšalnih prispevkov na leto.
+      Dobiček navadnega popoldanskega s. p. se prišteje plači, normirani popoldanski s. p. pa plača dokončni davek.
+      Svoj primer izračunaj v [kalkulatorju](/#zaposlitev): pri vprašanju »Že imaš redno zaposlitev?« izberi »Da« in vnesi letno bruto plačo iz zaposlitve.
+    </span>
+  </div>
+</div>
+
+**Kazalo**
+
+1. [Uvod](#uvod)
+2. [Kdo lahko odpre popoldanski s. p.?](#kdo-lahko)
+3. [Kako se računajo prispevki?](#prispevki)
+4. [Kako se računa dohodnina?](#dohodnina)
+5. [Normirani popoldanski s. p.](#normirani)
+6. [Primer izračuna](#primer)
+7. [Kdaj izbrati popoldanski s. p.?](#kdaj)
+8. [Kdaj popoldanski s. p. ni prava izbira?](#kdaj-ne)
+9. [Primerjave z drugimi oblikami](#primerjave)
+10. [Zaključek](#zakljucek)
+11. [Relevantni zakoni in viri](#viri)
+
+<h2 id="uvod">Uvod</h2>
+
+**Popoldanski s. p.** je pogovorni izraz za samostojnega podjetnika, ki dejavnost opravlja kot **postranski poklic**. V obvezno socialno zavarovanje ni vključen na podlagi dejavnosti, ampak na drugi podlagi – praviloma na podlagi **zaposlitve za polni delovni čas**. Pravni status je enak kot pri rednem s. p.: enaka registracija, enake obveznosti glede računov, DDV in davčnih obračunov. Razlika je v **prispevkih** in v **ugotavljanju davčne osnove**.
+
+Ker te že zavaruje delodajalec, iz s. p. plačuješ le **pavšalne prispevke** za primer poškodbe pri delu in poklicne bolezni, za zdravstveno zavarovanje in za dolgotrajno oskrbo. V letu 2026 to znese približno **{formatCurrency(prispevki.skupaj)} na leto**, ne glede na to, koliko zaslužiš. Za primerjavo: redni s. p. plača že pri minimalni zavarovalni osnovi nekaj tisoč evrov prispevkov letno (glej [izračun za s. p.](/izplacilo/sp)).
+
+Popoldanski s. p. je zato priljubljen začetek za vse, ki imajo redno službo in ob tem delajo še za **tuje stranke**. A nizki prispevki niso vse: dobiček navadnega popoldanskega s. p. se **prišteje plači** in obdavči po tvoji **mejni dohodninski stopnji**, normirani popoldanski s. p. pa ima bistveno nižje priznane normirane odhodke kot redni normiranec.
+
+V nadaljevanju so vsi izračuni za leto 2026, s primeri in primerjavo z [rednim s. p.](/izplacilo/sp), [normiranim s. p.](/izplacilo/normirani-sp) in [d. o. o.](/izplacilo/doo).
+
+<h2 id="kdo-lahko">Kdo lahko odpre popoldanski s. p.?</h2>
+
+Popoldanski s. p. lahko odpreš, če si **zaposlen za polni delovni čas** (40 ur na teden) in prispevke za socialno varnost zate plačuje delodajalec. Pri oddaji davčnih podatkov na portalu SPOT označiš, da si **zavarovan iz drugega naslova**, in se prijaviš v zavarovanje za primer poškodbe pri delu in poklicne bolezni (obrazec M-12, šifra razloga zavarovanja 10).
+
+Na kaj moraš biti pozoren:
+
+- **Pokojninska doba iz s. p. ne teče.** Pavšalni prispevek za PIZ krije le invalidnost ali smrt zaradi poškodbe pri delu oziroma poklicne bolezni. Pokojnino ti še naprej gradi le zaposlitev.
+- **Zaposlitev s krajšim delovnim časom** ni dovolj za popoldanski s. p. – v tem primeru se moraš iz s. p. zavarovati za preostanek do polnega delovnega časa.
+- **Delo za svojega delodajalca prek s. p.** je tvegano, saj se lahko šteje za prikrito delovno razmerje. Normiranec mora v obračunu celo posebej razkriti prihodke, dosežene pri delodajalcu, s katerim ima pogodbo o zaposlitvi.
+- Če v mesecu dejavnost opravljaš **15 dni ali manj**, plačaš polovico pavšalnega prispevka za PIZ.
+
+<div className="alert alert-info not-prose mb-4" role="alert">
+  <IdeaIcon className="w-6 h-6" />
+  <div>
+    <strong>Popoldanski s. p. ni posebna pravna oblika</strong>
+    <br />
+    <span className="text-sm">
+      Če pustiš službo in se zavaruješ prek s. p., ostaneš isti s. p. – le prispevke začneš plačevati v polni višini, pri normirancih pa se spremenijo tudi normirani odhodki in davčni razredi.
+    </span>
+  </div>
+</div>
+
+<h2 id="prispevki">Kako se računajo prispevki?</h2>
+
+Prispevki popoldanskega s. p. so **pavšalni** – niso odvisni od dobička. Pokojninski pavšal določa ZPIZ in se usklajuje 1. aprila, zdravstvene prispevke pa določa ZZZS kot odstotek povprečne bruto plače za oktober preteklega leta (PP).
+
+<div className="overflow-x-auto max-w-full">
+  <table className="table">
+    <thead>
+      <tr>
+        <th>Prispevek</th>
+        <th>Izračun</th>
+        <th>Mesečno 2026</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>PIZ – invalidnost/smrt zaradi poškodbe pri delu</td>
+        <td>pavšal (20. člen ZPIZ-2)</td>
+        <td>{formatCurrency(prvi(popoldanskiPIZ))}, od 1. 4. {formatCurrency(zadnji(popoldanskiPIZ))}</td>
+      </tr>
+      <tr>
+        <td>ZZ – poškodbe pri delu in poklicne bolezni</td>
+        <td>0,53 % PP</td>
+        <td>{formatCurrency(zadnji(popoldanskiZZPoskodbe))}</td>
+      </tr>
+      <tr>
+        <td>Zdravstveno zavarovanje</td>
+        <td>6,36 % od 25 % PP</td>
+        <td>{formatCurrency(zadnji(popoldanskiZZ))}</td>
+      </tr>
+      <tr>
+        <td>Dolgotrajna oskrba</td>
+        <td>1 % od 25 % PP</td>
+        <td>{formatCurrency(zadnji(popoldanskiDO))}</td>
+      </tr>
+      <tr>
+        <td><strong>Skupaj na leto</strong></td>
+        <td></td>
+        <td><strong>{formatCurrency(prispevki.skupaj)}</strong></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+```
+Letni prispevki = 3 × PIZ (jan–mar) + 9 × PIZ (apr–dec) + 12 × (ZZ poškodbe + ZZ + DO)
+```
+
+**Obveznega zdravstvenega prispevka (OZP)** iz s. p. ne plačuješ, saj ga že odvede delodajalec pri plači. Pavšalni prispevki so pri navadnem popoldanskem s. p. **davčno priznan odhodek** (56. člen ZDoh-2), zato zmanjšajo davčno osnovo. Pri normiranem popoldanskem s. p. so že zajeti v normiranih odhodkih.
+
+<h2 id="dohodnina">Kako se računa dohodnina?</h2>
+
+Pri **navadnem popoldanskem s. p.** (dejanski odhodki) je davčna osnova dobiček. Ta se v letni odmeri dohodnine **prišteje plači**, splošna olajšava pa se upošteva pri skupnem dohodku. Med letom plačuješ akontacijo po dohodninski lestvici, ob letni odmeri pa se obračuna razlika. Ker plača že zapolni nižje razrede, se dobiček s. p. obdavči po tvoji **mejni stopnji** – pri plači 30.000 € bruto po 26 %, ko pa skupna davčna osnova preseže {formatCurrency(incomeTaxBrackets[1].maxNumber)}, po 33 %.
+
+```
+Davčna osnova s. p.     = Prihodki − Stroški − Pavšalni prispevki
+Letna davčna osnova    = (Bruto plača − Prispevki iz plače) + Davčna osnova s. p. − Olajšave
+Dohodnina zaradi s. p.  = Dohodnina(plača + s. p.) − Dohodnina(samo plača)
+```
+
+Kalkulator na [prvi strani](/) zato prikazuje le **dodatno dohodnino**, ki jo povzroči s. p., da je primerljiva z drugimi oblikami pri enakih prihodkih. Izguba iz dejavnosti ne zmanjša dohodnine od plače.
+
+Dohodninska lestvica za leto 2026:
+
+<div className="overflow-x-auto max-w-full">
+  <table className="table">
+    <thead>
+      <tr>
+        <th>Letna davčna osnova</th>
+        <th>Stopnja</th>
+      </tr>
+    </thead>
+    <tbody>
+      {incomeTaxBrackets.map((razred, index) => (
+        <tr key={index}>
+          <td>
+            {razred.maxNumber
+              ? `do ${formatCurrency(razred.maxNumber)}`
+              : `nad ${formatCurrency(incomeTaxBrackets[index - 1].maxNumber)}`}
+          </td>
+          <td>{asPercent(razred.percentage)}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+
+Če imaš visoko plačo, je navadni popoldanski s. p. davčno drag: vsak dodatni evro dobička gre v 39- ali 50-odstotni razred. Takrat se splača preveriti **normirani popoldanski s. p.** ali [d. o. o.](/izplacilo/doo).
+
+<h2 id="normirani">Normirani popoldanski s. p.</h2>
+
+Popoldanski s. p. lahko davčno osnovo ugotavlja tudi z **normiranimi odhodki**. Ker nisi zavarovan na podlagi samozaposlitve, zate veljajo strožja pravila kot za [rednega normiranca](/izplacilo/normirani-sp):
+
+<div className="overflow-x-auto max-w-full">
+  <table className="table">
+    <thead>
+      <tr>
+        <th>Prihodki</th>
+        <th>Priznani normirani odhodki</th>
+      </tr>
+    </thead>
+    <tbody>
+      {normiranPopoldanskiOdhodki.map((pas, index) => (
+        <tr key={index}>
+          <td>
+            {pas.maxNumber
+              ? `${index === 0 ? "do" : `od ${formatCurrency(normiranPopoldanskiOdhodki[index - 1].maxNumber)} do`} ${formatCurrency(pas.maxNumber)}`
+              : `nad ${formatCurrency(normiranPopoldanskiOdhodki[index - 1].maxNumber)}`}
+          </td>
+          <td>{asPercent(pas.percentage)}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+
+Največ lahko torej uveljavljaš **17.000 €** normiranih odhodkov (redni normiranec do 48.000 €). Od davčne osnove plačaš **{asPercent(normiranPopoldanskiTaxBrackets[0].percentage)} do {formatCurrency(normiranPopoldanskiTaxBrackets[0].maxNumber)}** in **{asPercent(normiranPopoldanskiTaxBrackets[1].percentage)} nad tem zneskom**. Davek je **dokončen** in se ne všteva v letno davčno osnovo – plača nanj ne vpliva, olajšave pa uveljavljaš pri plači.
+
+```
+Davčna osnova = Prihodki − Normirani odhodki
+Davek         = 20 % × min(Davčna osnova, 33.000 €) + 35 % × presežek
+Skupaj        = Davek + Pavšalni prispevki
+```
+
+V sistemu normirancev lahko ostaneš, dokler **povprečje prihodkov zadnjih dveh let** ne preseže **{formatCurrency(normiranPopoldanskiMaxRevenue)}** (za rednega normiranca {formatCurrency(normiranMaxRevenue)}; če si bil v enem od teh dveh let zavarovan za polni delovni čas, v drugem pa ne, je meja {formatCurrency(85000)}).
+
+<div className="alert alert-warning not-prose mb-4" role="alert">
+  <Alert01Icon className="w-6 h-6" />
+  <div>
+    <strong>Pravila za leto 2026 se lahko še spremenijo</strong>
+    <br />
+    <span className="text-sm">
+      Zakon ZIURS, o katerem bo 6. 12. 2026 potekal zakonodajni referendum, bi za leto 2026 popoldancem priznal 80 % normiranih odhodkov do 50.000 € prihodkov, 70 % od 50.000 do 70.000 € in 0 % nad tem, veljala pa bi enotna 20-odstotna stopnja davka (brez 35-odstotnega razreda). V sistemu normirancev bi lahko ostal, dokler povprečje prihodkov zadnjih dveh let ne bi preseglo 70.000 €. Izračuni v tem članku upoštevajo trenutno veljavni zakon (ZPZR). <a className="link" href="https://www.gov.si/novice/2026-10-16-ugotavljanje-davcne-osnove-z-normiranimi-odhodki-v-letu-2026-v-povezavi-z-interventnim-zakonom-ziurs/">Več na gov.si</a>
+    </span>
+  </div>
+</div>
+
+<h2 id="primer">Primer izračuna</h2>
+
+Vzemimo **{formatCurrency(30000)} prihodkov**, **0 € stroškov** in **{formatCurrency(30000)} bruto plače** iz redne zaposlitve.
+
+**Navadni popoldanski s. p.** – davčna osnova s. p. je {formatCurrency(30000 - prispevki.skupaj)} (prihodki minus pavšalni prispevki). Ta se prišteje plači, zato se večinoma obdavči po 33 %:
+
+<div className="stats shadow-sm my-4 max-md:stats-vertical">
+  <div className="stat">
+    <div className="stat-title">Davki in prispevki zaradi s. p.</div>
+    <div className="stat-value"><CurrencyOutput taxMode="PopoldanskiSP" dataPoint="totalTax" revenue={30000} expenses={0} zaposlitevBruto={30000} /></div>
+    <div className="stat-desc"><CurrencyOutput taxMode="PopoldanskiSP" dataPoint="effectiveTaxRate" revenue={30000} expenses={0} zaposlitevBruto={30000} /> efektivna stopnja</div>
+  </div>
+  <div className="stat">
+    <div className="stat-title">Ostane ti</div>
+    <div className="stat-value"><CurrencyOutput taxMode="PopoldanskiSP" dataPoint="totalNet" revenue={30000} expenses={0} zaposlitevBruto={30000} /></div>
+    <div className="stat-desc"><CurrencyOutput taxMode="PopoldanskiSP" dataPoint="cistiPrihodkiRate" revenue={30000} expenses={0} zaposlitevBruto={30000} /> prihodkov</div>
+  </div>
+</div>
+
+**Normirani popoldanski s. p.** – normirani odhodki so 80 % × 12.500 € + 40 % × 17.500 € = 17.000 €, davčna osnova je 13.000 €, 20-odstotni davek pa 2.600 €:
+
+<div className="stats shadow-sm my-4 max-md:stats-vertical">
+  <div className="stat">
+    <div className="stat-title">Davek in prispevki</div>
+    <div className="stat-value"><CurrencyOutput taxMode="NormiraniPopoldanskiSP" dataPoint="totalTax" revenue={30000} expenses={0} /></div>
+    <div className="stat-desc"><CurrencyOutput taxMode="NormiraniPopoldanskiSP" dataPoint="effectiveTaxRate" revenue={30000} expenses={0} /> efektivna stopnja</div>
+  </div>
+  <div className="stat">
+    <div className="stat-title">Ostane ti</div>
+    <div className="stat-value"><CurrencyOutput taxMode="NormiraniPopoldanskiSP" dataPoint="totalNet" revenue={30000} expenses={0} /></div>
+    <div className="stat-desc"><CurrencyOutput taxMode="NormiraniPopoldanskiSP" dataPoint="cistiPrihodkiRate" revenue={30000} expenses={0} /> prihodkov</div>
+  </div>
+</div>
+
+Pri enakih prihodkih je razlika več kot 6.000 € na leto v korist normiranca. Navadni popoldanski s. p. se izplača šele pri **visokih dejanskih stroških**, ko presežejo normirane odhodke in razliko v davčni stopnji.
+
+Preizkusi še s svojimi prihodki in stroški (plača 30.000 € bruto):
+
+<SharedInputs />
+
+<div className="stats shadow-sm my-4 max-md:stats-vertical">
+  <div className="stat">
+    <div className="stat-title">Popoldanski s. p.</div>
+    <div className="stat-value"><CurrencyOutput taxMode="PopoldanskiSP" dataPoint="totalTax" zaposlitevBruto={30000} /></div>
+    <div className="stat-desc"><CurrencyOutput taxMode="PopoldanskiSP" dataPoint="effectiveTaxRate" zaposlitevBruto={30000} /> efektivna stopnja</div>
+  </div>
+  <div className="stat">
+    <div className="stat-title">Normirani popoldanski s. p.</div>
+    <div className="stat-value"><CurrencyOutput taxMode="NormiraniPopoldanskiSP" dataPoint="totalTax" /></div>
+    <div className="stat-desc"><CurrencyOutput taxMode="NormiraniPopoldanskiSP" dataPoint="effectiveTaxRate" /> efektivna stopnja</div>
+  </div>
+</div>
+
+<h2 id="kdaj">Kdaj izbrati popoldanski s. p.?</h2>
+
+Popoldanski s. p. je smiseln, ko želiš ob redni službi **preizkusiti lastno dejavnost** brez visokih fiksnih stroškov. Pavšalni prispevki so nizki in predvidljivi, zato se ti s. p. splača že pri nekaj tisoč evrih letnih prihodkov – pri rednem s. p. bi samo minimalni prispevki pojedli velik del zaslužka.
+
+Normirani popoldanski s. p. je najboljša izbira, ko:
+
+- imaš **nizke dejanske stroške** (programiranje, svetovanje, prevajanje, oblikovanje),
+- so tvoji prihodki **do približno 30.000 €** na leto, kjer normirani odhodki še rastejo,
+- ne želiš voditi poslovnih knjig in želiš **dokončni davek**, ki ne poveča dohodnine od plače.
+
+Navadni popoldanski s. p. (dejanski odhodki) izberi, ko imaš **visoke stroške** – nakup opreme, podizvajalce, najem prostora – ali ko pričakuješ izgubo v prvem letu. Takrat lahko dejanski odhodki krepko presežejo 17.000 € normiranih odhodkov.
+
+<h2 id="kdaj-ne">Kdaj popoldanski s. p. ni prava izbira?</h2>
+
+<div className="alert alert-warning not-prose mb-4" role="alert">
+  <Alert01Icon className="w-6 h-6" />
+  <div>
+    <strong>Pozor pri višjih prihodkih</strong>
+    <br />
+    <span className="text-sm">
+      Za prihodke nad 30.000 € popoldanski normiranec ne dobi več dodatnih normiranih odhodkov, nad {formatCurrency(normiranPopoldanskiMaxRevenue)} povprečnih prihodkov pa izpade iz sistema normirancev.
+    </span>
+  </div>
+</div>
+
+- Ko **dejavnost preraste službo**: pri prihodkih nad 50.000 € in nizkih stroških je [redni normirani s. p.](/izplacilo/normirani-sp) (80 % normiranih odhodkov do 60.000 €) praviloma cenejši – a zahteva, da si zavarovan prek s. p.
+- Ko imaš **visoko plačo** in navadni popoldanski s. p.: dobiček se obdavči po 39 ali 50 %.
+- Ko delaš **za svojega delodajalca** – tveganje prikritega delovnega razmerja.
+- Ko želiš z dejavnostjo **graditi pokojnino** – pavšalni prispevki je ne povečujejo.
+
+<h2 id="primerjave">Primerjave z drugimi oblikami</h2>
+
+**Popoldanski s. p. ali normirani popoldanski s. p.?** Pri nizkih stroških skoraj vedno zmaga normirani: davčna osnova je nižja, stopnja pa 20 % namesto tvoje mejne stopnje. Navadni popoldanski s. p. je boljši le, ko dejanski stroški presežejo normirane odhodke in razliko v stopnji.
+
+**Popoldanski s. p. ali [redni s. p.](/izplacilo/sp)?** To ni povsem prosta izbira – redni s. p. pomeni, da si zavarovan prek dejavnosti, torej brez redne zaposlitve. Redni s. p. plača že pri minimalni zavarovalni osnovi več tisoč evrov prispevkov letno, popoldanski pa le {formatCurrency(prispevki.skupaj)}, zato je popoldanski s. p. ob službi bistveno cenejši.
+
+**Popoldanski s. p. ali [d. o. o.](/izplacilo/doo)?** Lastnik d. o. o., ki je že zaposlen drugje, si lahko izplačuje samo dividende. Dobiček se obdavči z {asPercent(ddpoTaxRate)} davka od dohodkov pravnih oseb, izplačilo pa še s {asPercent(dividendsTaxRate)} davka od dividend – skupaj okoli 41,5 %. To je dražje od normiranega popoldanskega s. p., a lahko cenejše od navadnega popoldanskega s. p. pri visoki plači in visokem dobičku, ko bi sicer plačal 50 % dohodnine. V kalkulatorju to prikazuje kartica **D. o. o. ob zaposlitvi**.
+
+<h2 id="zakljucek">Zaključek</h2>
+
+Popoldanski s. p. je ob redni zaposlitvi najcenejši način, da začneš delati za svoje stranke: pavšalni prispevki znašajo okoli {formatCurrency(prispevki.skupaj)} na leto. Pri nizkih stroških in prihodkih do 30.000 € je **normirani popoldanski s. p.** praviloma najugodnejši, saj plačaš dokončni davek po 20 % od nizke davčne osnove. Navadni popoldanski s. p. je smiseln pri visokih stroških, ko pa prihodki zrastejo nad 50.000 €, je čas za razmislek o [rednem normiranem s. p.](/izplacilo/normirani-sp) ali [d. o. o.](/izplacilo/doo).
+
+<div className="alert alert-success not-prose" role="alert">
+  <CheckmarkCircle01Icon className="w-6 h-6" />
+  <div>
+    <strong>Ključni nasvet</strong>
+    <br />
+    <span className="text-sm">
+      V [kalkulatorju](/) vnesi svojo letno bruto plačo iz zaposlitve – prikazale se bodo kartice za popoldanski s. p., normirani popoldanski s. p. in d. o. o. ob zaposlitvi. Za svoj konkretni primer se posvetuj z računovodjo.
+    </span>
+  </div>
+</div>
+
+<h2 id="viri">Relevantni zakoni in viri</h2>
+
+- [Zakon o dohodnini (ZDoh-2)](https://pisrs.si/pregledPredpisa?id=ZAKO4697) – 56. člen (prispevki kot odhodek), 59. člen (normirani odhodki).
+- [Zakon o pokojninskem in invalidskem zavarovanju (ZPIZ-2)](https://pisrs.si/pregledPredpisa?id=ZAKO6280) – 20. člen (zavarovanje za primer poškodbe pri delu in poklicne bolezni).
+- [Zakon o zdravstvenem varstvu in zdravstvenem zavarovanju (ZZVZZ)](https://pisrs.si/pregledPredpisa?id=ZAKO213) – 17. člen (osebe, ki opravljajo dejavnost kot postranski poklic).
+- [ZPZR-A](https://pisrs.si/api/uradni-list/objava/u20260032.pdf) – pogoji za normirance od leta 2026.
+- [FURS: Davki za začetnike (marec 2026)](https://fu.gov.si/fileadmin/Internet/Davki_in_druge_dajatve/Podrocja/Dohodnina/Dohodek_iz_dejavnosti/Opis/Davki_za_zacetnike_-_fizicne_osebe_ki_opravljajo_dejavnost.pdf) – 9. poglavje, popoldanski s. p.
+- [FURS: Novosti pri normiranih odhodkih v letu 2026](https://www.gov.si/novice/2025-11-24-novosti-pri-ugotavljanju-davcne-osnove-z-upostevanjem-normiranih-odhodkov-v-letu-2026/)
+- [SPOT: Primerjava med navadnim in normiranim s. p.](https://spot.gov.si/sl/teme/primerjava-med-navadnim-in-normiranim-s-p)

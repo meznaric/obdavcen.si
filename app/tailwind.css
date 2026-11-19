@@ -1,12 +1,661 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss" source(".");
 
-html,
-body {
-  @apply bg-white dark:bg-gray-950;
+@plugin "@tailwindcss/typography";
+@plugin "daisyui" {
+  themes: light --default, dark --prefersdark;
+}
 
-  @media (prefers-color-scheme: dark) {
-    color-scheme: dark;
+/*
+  daisyUI 5 je osvežil barve in mere vgrajenih tem. Da stran izgleda enako
+  kot z daisyUI 4, temi light in dark prepišemo z vrednostmi iz daisyUI 4.
+
+  Izjema so barve v svetli temi: secondary, accent, info, success in error so
+  temnejše kot v daisyUI 4, da so kot besedilo (npr. `text-success`,
+  `link-accent`) na podlagah base-100 in base-200 berljive po WCAG AA (vsaj
+  4,5 : 1). Besedilo na njih (`*-content`) je zato belo. Rumena `warning` kot
+  besedilo na svetli podlagi ni berljiva, zato jo uporabljaj samo kot podlago
+  (npr. `alert-warning`). V temni temi so vse barve berljive brez sprememb.
+*/
+@plugin "daisyui/theme" {
+  name: "light";
+  default: true;
+  color-scheme: light;
+  --color-base-100: oklch(100% 0 0);
+  --color-base-200: oklch(96.1151% 0 0);
+  --color-base-300: oklch(92.4169% 0.00108 197.137559);
+  --color-base-content: oklch(27.8078% 0.029596 256.847952);
+  --color-primary: oklch(49.12% 0.3096 275.75);
+  --color-primary-content: oklch(89.824% 0.06192 275.75);
+  --color-secondary: oklch(56.5% 0.239 342.55);
+  --color-secondary-content: oklch(98.71% 0.0106 342.55);
+  --color-accent: oklch(52% 0.089 183.61);
+  --color-accent-content: oklch(100% 0 0);
+  --color-neutral: oklch(32.1785% 0.02476 255.701624);
+  --color-neutral-content: oklch(89.4994% 0.011585 252.096176);
+  --color-info: oklch(52.5% 0.106 231.6);
+  --color-info-content: oklch(100% 0 0);
+  --color-success: oklch(52% 0.115 160);
+  --color-success-content: oklch(100% 0 0);
+  --color-warning: oklch(84.71% 0.199 83.87);
+  --color-warning-content: oklch(0% 0 0);
+  --color-error: oklch(56% 0.221 22.18);
+  --color-error-content: oklch(100% 0 0);
+  --radius-selector: 1.9rem;
+  --radius-field: 0.5rem;
+  --radius-box: 1rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 0;
+  --noise: 0;
+}
+
+@plugin "daisyui/theme" {
+  name: "dark";
+  prefersdark: true;
+  color-scheme: dark;
+  --color-base-100: oklch(25.3267% 0.015896 252.417568);
+  --color-base-200: oklch(23.2607% 0.013807 253.100675);
+  --color-base-300: oklch(21.1484% 0.01165 254.087939);
+  --color-base-content: oklch(74.6477% 0.0216 264.435964);
+  --color-primary: oklch(65.69% 0.196 275.75);
+  --color-primary-content: oklch(13.138% 0.0392 275.75);
+  --color-secondary: oklch(74.8% 0.26 342.55);
+  --color-secondary-content: oklch(14.96% 0.052 342.55);
+  --color-accent: oklch(74.51% 0.167 183.61);
+  --color-accent-content: oklch(14.902% 0.0334 183.61);
+  --color-neutral: oklch(31.3815% 0.021108 254.139175);
+  --color-neutral-content: oklch(74.6477% 0.0216 264.435964);
+  --color-info: oklch(72.06% 0.191 231.6);
+  --color-info-content: oklch(0% 0 0);
+  --color-success: oklch(64.8% 0.15 160);
+  --color-success-content: oklch(0% 0 0);
+  --color-warning: oklch(84.71% 0.199 83.87);
+  --color-warning-content: oklch(0% 0 0);
+  --color-error: oklch(71.76% 0.221 22.18);
+  --color-error-content: oklch(0% 0 0);
+  --radius-selector: 1.9rem;
+  --radius-field: 0.5rem;
+  --radius-box: 1rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 0;
+  --noise: 0;
+}
+
+/*
+  Manj poudarjeno besedilo (podnapisi, opisi, pomožne vrednosti): `text-muted`.
+  Mešanica base-content in base-100 je v obeh temah na podlagah base-100,
+  base-200, base-300 in na ozadju strani berljiva po WCAG AA. Za taka besedila
+  ne uporabljaj sivin (`text-gray-*`) ali prosojnosti (`opacity-*`), ker v eni
+  od tem niso berljive.
+*/
+@theme static {
+  --color-muted: color-mix(
+    in oklab,
+    var(--color-base-content) 78%,
+    var(--color-base-100)
+  );
+}
+
+@theme {
+  --font-sans:
+    Inter, ui-sans-serif, system-ui, sans-serif, Apple Color Emoji,
+    Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji;
+
+  /*
+    Tailwind CSS v4 ima novo paleto (OKLCH). Za barve, ki jih uporablja stran,
+    ohranimo vrednosti iz Tailwind CSS v3, da so barve enake kot prej.
+  */
+  --color-gray-50: #f9fafb;
+  --color-gray-100: #f3f4f6;
+  --color-gray-200: #e5e7eb;
+  --color-gray-300: #d1d5db;
+  --color-gray-400: #9ca3af;
+  --color-gray-500: #6b7280;
+  --color-gray-600: #4b5563;
+  --color-gray-700: #374151;
+  --color-gray-800: #1f2937;
+  --color-gray-900: #111827;
+  --color-gray-950: #030712;
+
+  --color-red-50: #fef2f2;
+  --color-red-100: #fee2e2;
+  --color-red-200: #fecaca;
+  --color-red-300: #fca5a5;
+  --color-red-400: #f87171;
+  --color-red-500: #ef4444;
+  --color-red-600: #dc2626;
+  --color-red-700: #b91c1c;
+  --color-red-800: #991b1b;
+  --color-red-900: #7f1d1d;
+  --color-red-950: #450a0a;
+
+  --color-orange-50: #fff7ed;
+  --color-orange-100: #ffedd5;
+  --color-orange-200: #fed7aa;
+  --color-orange-300: #fdba74;
+  --color-orange-400: #fb923c;
+  --color-orange-500: #f97316;
+  --color-orange-600: #ea580c;
+  --color-orange-700: #c2410c;
+  --color-orange-800: #9a3412;
+  --color-orange-900: #7c2d12;
+  --color-orange-950: #431407;
+
+  --color-amber-50: #fffbeb;
+  --color-amber-100: #fef3c7;
+  --color-amber-200: #fde68a;
+  --color-amber-300: #fcd34d;
+  --color-amber-400: #fbbf24;
+  --color-amber-500: #f59e0b;
+  --color-amber-600: #d97706;
+  --color-amber-700: #b45309;
+  --color-amber-800: #92400e;
+  --color-amber-900: #78350f;
+  --color-amber-950: #451a03;
+
+  --color-yellow-50: #fefce8;
+  --color-yellow-100: #fef9c3;
+  --color-yellow-200: #fef08a;
+  --color-yellow-300: #fde047;
+  --color-yellow-400: #facc15;
+  --color-yellow-500: #eab308;
+  --color-yellow-600: #ca8a04;
+  --color-yellow-700: #a16207;
+  --color-yellow-800: #854d0e;
+  --color-yellow-900: #713f12;
+  --color-yellow-950: #422006;
+
+  --color-green-50: #f0fdf4;
+  --color-green-100: #dcfce7;
+  --color-green-200: #bbf7d0;
+  --color-green-300: #86efac;
+  --color-green-400: #4ade80;
+  --color-green-500: #22c55e;
+  --color-green-600: #16a34a;
+  --color-green-700: #15803d;
+  --color-green-800: #166534;
+  --color-green-900: #14532d;
+  --color-green-950: #052e16;
+
+  --color-sky-50: #f0f9ff;
+  --color-sky-100: #e0f2fe;
+  --color-sky-200: #bae6fd;
+  --color-sky-300: #7dd3fc;
+  --color-sky-400: #38bdf8;
+  --color-sky-500: #0ea5e9;
+  --color-sky-600: #0284c7;
+  --color-sky-700: #0369a1;
+  --color-sky-800: #075985;
+  --color-sky-900: #0c4a6e;
+  --color-sky-950: #082f49;
+
+  --color-blue-50: #eff6ff;
+  --color-blue-100: #dbeafe;
+  --color-blue-200: #bfdbfe;
+  --color-blue-300: #93c5fd;
+  --color-blue-400: #60a5fa;
+  --color-blue-500: #3b82f6;
+  --color-blue-600: #2563eb;
+  --color-blue-700: #1d4ed8;
+  --color-blue-800: #1e40af;
+  --color-blue-900: #1e3a8a;
+  --color-blue-950: #172554;
+
+  --color-indigo-50: #eef2ff;
+  --color-indigo-100: #e0e7ff;
+  --color-indigo-200: #c7d2fe;
+  --color-indigo-300: #a5b4fc;
+  --color-indigo-400: #818cf8;
+  --color-indigo-500: #6366f1;
+  --color-indigo-600: #4f46e5;
+  --color-indigo-700: #4338ca;
+  --color-indigo-800: #3730a3;
+  --color-indigo-900: #312e81;
+  --color-indigo-950: #1e1b4b;
+
+  --color-purple-50: #faf5ff;
+  --color-purple-100: #f3e8ff;
+  --color-purple-200: #e9d5ff;
+  --color-purple-300: #d8b4fe;
+  --color-purple-400: #c084fc;
+  --color-purple-500: #a855f7;
+  --color-purple-600: #9333ea;
+  --color-purple-700: #7e22ce;
+  --color-purple-800: #6b21a8;
+  --color-purple-900: #581c87;
+  --color-purple-950: #3b0764;
+
+  --color-pink-50: #fdf2f8;
+  --color-pink-100: #fce7f3;
+  --color-pink-200: #fbcfe8;
+  --color-pink-300: #f9a8d4;
+  --color-pink-400: #f472b6;
+  --color-pink-500: #ec4899;
+  --color-pink-600: #db2777;
+  --color-pink-700: #be185d;
+  --color-pink-800: #9d174d;
+  --color-pink-900: #831843;
+  --color-pink-950: #500724;
+}
+
+/*
+  Tailwind CSS v4 ima privzeto barvo obrobe `currentcolor`, v3 pa je imel
+  gray-200. Namesto gray-200, ki je v temni temi preveč svetla, uporabimo
+  10 % base-content: v svetli temi je skoraj enaka gray-200, v temni pa je
+  obroba diskretna kot ločnice v daisyUI.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: color-mix(in oklab, var(--color-base-content) 10%, #0000);
+  }
+
+  /*
+    Tailwind CSS v4 ponastavi odmike vseh elementov, v3 pa celic tabel ni,
+    zato so imele privzeti odmik brskalnika (1px).
+  */
+  th,
+  td {
+    padding: 1px;
+  }
+
+  /* Tailwind CSS v4 gumbom privzeto nastavi cursor: default */
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
+/*
+  daisyUI 5 je spremenil mere in obliko več komponent. Spodnja pravila vrnejo
+  videz daisyUI 4 za komponente, ki jih uporablja stran.
+
+  daisyUI 5 komponente zapiše v podsloje znotraj `utilities`: osnovni razred
+  (npr. `.btn`) v `daisyui.l1.l2.l3`, modifikatorje (npr. `.btn-sm`) v
+  `daisyui.l1.l2`, stanja (npr. `.btn:active`) v `daisyui.l1`. Popravke
+  zapišemo v lastna podsloja, ki sta po vrstnem redu med njimi:
+
+    daisyui.l1.l2.l3 < daisyui.l1.l2.compat < daisyui.l1.l2
+      < daisyui.l1.compat < daisyui.l1 < Tailwind razredi (npr. `px-2`)
+
+  Lastna podsloja sta nujna: produkcijska gradnja (Lightning CSS) združi
+  istoimenske sloje in pri tem ne ohrani vrstnega reda pravil.
+*/
+@layer utilities {
+  /* Osnovni razredi: nad daisyUI osnovo, pod daisyUI modifikatorji */
+  @layer daisyui.l1.l2.compat {
+    .btn {
+      --size: 3rem;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      line-height: 1em;
+    }
+
+    .input {
+      --in-size-mul: 12;
+      --font-size-min: 1rem;
+      width: auto;
+      padding-inline: 1rem;
+      line-height: 1.5rem;
+
+      & input::placeholder {
+        color: var(--color-muted);
+        opacity: 1;
+      }
+
+      /* daisyUI 5 polje raztegne čez celo širino, zato bi se ikona skrčila */
+      & > svg {
+        flex-shrink: 0;
+      }
+    }
+
+    .input:focus,
+    .input:focus-within {
+      --input-color: color-mix(in oklab, var(--color-base-content) 20%, #0000);
+    }
+
+    .alert {
+      width: 100%;
+      align-content: flex-start;
+      justify-content: normal;
+      padding: 1rem;
+      font-size: inherit;
+      line-height: inherit;
+
+      @media (width >= 40rem) {
+        grid-template-columns: auto minmax(auto, 1fr);
+      }
+    }
+
+    /* daisyUI 4: na ozkih zaslonih je obvestilo navpično in sredinsko */
+    @media (width < 40rem) {
+      .alert,
+      .alert:has(> :nth-child(2)) {
+        grid-auto-flow: row;
+        grid-template-columns: auto;
+        justify-items: center;
+        text-align: center;
+      }
+    }
+
+    .card-body {
+      padding: var(--card-p, 2rem);
+      font-size: inherit;
+    }
+
+    .card-title {
+      font-size: var(--cardtitle-fs, 1.25rem);
+      line-height: 1.75rem;
+    }
+
+    .stats {
+      background-color: var(--color-base-100);
+      color: var(--color-base-content);
+    }
+
+    /* daisyUI: 60 % base-content, kar ni berljivo (3,5–4,1 : 1) */
+    .stat-title,
+    .stat-desc {
+      color: var(--color-muted);
+    }
+
+    .stat-title {
+      font-size: inherit;
+    }
+
+    .stat-value {
+      font-size: 2.25rem;
+      line-height: 2.5rem;
+    }
+
+    .stat-desc {
+      line-height: 1rem;
+    }
+
+    .table {
+      border-collapse: collapse;
+      line-height: 1.25rem;
+
+      & :where(thead tr, tbody tr:not(:last-child), tbody tr:first-child:last-child) {
+        border-bottom: var(--border) solid var(--color-base-200);
+      }
+
+      & :where(thead tr :is(td, th), tbody tr:not(:last-child) :is(td, th)) {
+        border-bottom: none;
+      }
+
+      & :where(thead, tfoot) {
+        font-size: 0.75rem;
+        line-height: 1rem;
+        font-weight: 700;
+      }
+    }
+
+    .badge {
+      --size: 1.25rem;
+      padding-inline: 0.563rem;
+      line-height: 1.25rem;
+    }
+
+    .collapse-title {
+      min-height: 3.75rem;
+    }
+
+    /*
+      daisyUI 4 drsnik: bel gumb z obrobo, levo od gumba zapolnjena sled.
+      Brez gnezdenja in z ločenimi -webkit-/-moz- pravili, ker brskalnik
+      zavrže pravilo z neznanim psevdo-elementom.
+    */
+    .range {
+      --range-shdw: var(--color-base-content);
+      --range-track: color-mix(in oklab, var(--color-base-content) 10%, #0000);
+      width: 100%;
+      height: 1.5rem;
+      border-radius: var(--radius-box);
+      container-type: normal;
+    }
+
+    .range:focus-visible {
+      outline: none;
+    }
+
+    .range::-webkit-slider-runnable-track {
+      height: 0.5rem;
+      border-radius: var(--radius-box);
+      background-color: var(--range-track);
+    }
+
+    .range::-moz-range-track {
+      height: 0.5rem;
+      border-radius: var(--radius-box);
+      background-color: var(--range-track);
+    }
+
+    .range::-moz-range-progress {
+      background-color: transparent;
+    }
+
+    .range::-webkit-slider-thumb {
+      position: relative;
+      top: 50%;
+      width: 1.5rem;
+      height: 1.5rem;
+      border: none;
+      border-radius: var(--radius-box);
+      background-color: var(--color-base-100);
+      color: var(--range-shdw);
+      --filler-size: 100rem;
+      box-shadow:
+        0 0 0 3px var(--range-shdw) inset,
+        var(--focus-shadow, 0 0),
+        calc(var(--filler-size) * -1 - var(--filler-offset)) 0 0
+          var(--filler-size);
+      --filler-offset: 0.6rem;
+      transform: translateY(-50%);
+    }
+
+    .range::-moz-range-thumb {
+      position: relative;
+      top: 50%;
+      width: 1.5rem;
+      height: 1.5rem;
+      border: none;
+      border-radius: var(--radius-box);
+      background-color: var(--color-base-100);
+      color: var(--range-shdw);
+      --filler-size: 100rem;
+      box-shadow:
+        0 0 0 3px var(--range-shdw) inset,
+        var(--focus-shadow, 0 0),
+        calc(var(--filler-size) * -1 - var(--filler-offset)) 0 0
+          var(--filler-size);
+      --filler-offset: 0.5rem;
+    }
+
+    .range:focus-visible::-webkit-slider-thumb {
+      --focus-shadow:
+        0 0 0 6px var(--color-base-100) inset,
+        0 0 0 2rem var(--range-shdw) inset;
+    }
+
+    .range:focus-visible::-moz-range-thumb {
+      --focus-shadow:
+        0 0 0 6px var(--color-base-100) inset,
+        0 0 0 2rem var(--range-shdw) inset;
+    }
+
+    /* daisyUI 4 zavihki so bili v mreži in enako široki */
+    .tabs {
+      --tab-height: 2rem;
+      display: grid;
+      align-items: flex-end;
+    }
+
+    .tabs > .tab {
+      grid-row-start: 1;
+      padding-inline: 1rem;
+      line-height: 2;
+    }
+
+    /* daisyUI 4 oblaček: debelina pisave podedovana, bližje elementu */
+    .tooltip {
+      --tt-off: calc(100% + 0.25rem);
+      --tt-tail: calc(100% + var(--tt-overlap));
+    }
+
+    .tooltip > .tooltip-content,
+    .tooltip[data-tip]:before {
+      border-radius: 0.25rem;
+      font-weight: inherit;
+      line-height: 1.25rem;
+    }
+  }
+
+  /* Modifikatorji: nad daisyUI modifikatorji, pod stanji in Tailwind razredi */
+  @layer daisyui.l1.compat {
+    .btn-xs {
+      --fontsize: 0.75rem;
+    }
+
+    .btn-sm {
+      --fontsize: 0.875rem;
+    }
+
+    .btn-lg {
+      --size: 4rem;
+      --btn-p: 1.5rem;
+    }
+
+    /* daisyUI 5 aktivni gumb (aria-current, aria-pressed) potemni */
+    .btn:is([aria-pressed="true"], [aria-checked="true"], [aria-current]:not([aria-current="false"], [aria-current=""])) {
+      --btn-bg: var(--btn-color, var(--color-base-200));
+      --btn-border: var(--btn-color, var(--color-base-200));
+    }
+
+    .input-sm {
+      --font-size-min: 0.875rem;
+      padding-inline: 0.75rem;
+      line-height: 2rem;
+    }
+
+    .input-md {
+      --in-size-mul: 12;
+      padding-inline: 1rem;
+      line-height: 2;
+    }
+
+    /* daisyUI 4 puščica je bila pri vrhu, ne na sredini (pri naslovu v dveh vrsticah) */
+    .collapse-arrow > .collapse-title:after {
+      top: 1.9rem;
+    }
+
+    /* daisyUI 4 `tabs-boxed`: aktivni zavihek v barvi `primary` */
+    .tabs-box {
+      border-radius: var(--radius-field);
+      padding: 0.25rem;
+      box-shadow: none;
+    }
+
+    .tabs-box > .tab {
+      color: var(--color-base-content);
+    }
+
+    .tabs-box > :is(.tab-active, [aria-selected="true"]):not(.tab-disabled, [disabled]) {
+      background-color: var(--color-primary);
+      color: var(--color-primary-content);
+      box-shadow: none;
+    }
+
+    .range-accent {
+      --range-shdw: var(--color-accent);
+    }
+
+    .range-sm {
+      height: 1.25rem;
+    }
+
+    .range-sm::-webkit-slider-runnable-track {
+      height: 0.25rem;
+    }
+
+    .range-sm::-moz-range-track {
+      height: 0.25rem;
+    }
+
+    .range-sm::-webkit-slider-thumb {
+      width: 1.25rem;
+      height: 1.25rem;
+      --filler-offset: 0.5rem;
+    }
+
+    .range-sm::-moz-range-thumb {
+      width: 1.25rem;
+      height: 1.25rem;
+      --filler-offset: 0.5rem;
+    }
+
+    .table-sm :not(thead, tfoot) tr {
+      font-size: 0.875rem;
+      line-height: 1.25rem;
+    }
+
+    .table-xs :not(thead, tfoot) tr {
+      font-size: 0.75rem;
+      line-height: 1rem;
+    }
+
+    /*
+      Ločnice med `.stat`: daisyUI 4 je imel polno črto na levi (oz. zgoraj pri
+      `stats-vertical`), daisyUI 5 ima črtkano na desni (oz. spodaj). Ta sloj je
+      nad modifikatorji, zato velja tudi za `max-md:stats-vertical`.
+    */
+    .stats > .stat {
+      border-inline-end: none;
+      border-block-end: none;
+    }
+
+    :where(.stats) > :not([hidden]) ~ :not([hidden]) {
+      border-inline-start: 1px solid
+        color-mix(in oklab, var(--color-base-content) 10%, #0000);
+    }
+
+    @media (width < 48rem) {
+      .max-md\:stats-vertical > :not([hidden]) ~ :not([hidden]) {
+        border-inline-start-width: 0;
+        border-top: 1px solid
+          color-mix(in oklab, var(--color-base-content) 10%, #0000);
+      }
+    }
+  }
+}
+
+/*
+  Ozadje strani: v svetli temi belo, v temni gray-950 (temnejše od base-100,
+  da kartice izstopajo). daisyUI barvo <html> vzame iz `--root-bg` (privzeto
+  base-100), zato jo nastavimo enako kot <body>. Sicer je v temni temi pod
+  kratko stranjo (npr. 404) pas v drugi barvi.
+*/
+@layer base {
+  :root {
+    --root-bg: var(--color-white);
+
+    @variant dark {
+      --root-bg: var(--color-gray-950);
+    }
+  }
+
+  html,
+  body {
+    @apply bg-white dark:bg-gray-950;
+
+    @media (prefers-color-scheme: dark) {
+      color-scheme: dark;
+    }
   }
 }

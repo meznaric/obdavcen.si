@@ -1,32 +1,48 @@
-import { useSelector } from "@xstate/store/react";
-import { useCallback, useState } from "react";
-import { settingsByYear } from "~/constants";
+import { useSelector } from "@xstate/store-react";
+import { useCallback, useMemo, useState } from "react";
+import { getPrivzeteNastavitve } from "~/constants";
 import type { SharedInputs, YearSettings } from "~/constants/types";
 import { store } from "~/utils/store";
 
-export function useSharedInputs() {
-  const defaultCurrentSettings: YearSettings = {
-    ...settingsByYear[2026],
-    spZavarovanecClen: 15,
-    dooDruzbenikPoslovodja: true,
-    malica: true,
-    prevozniStroski: false,
-    regres: true,
-    bozicnica: true,
-    nagradaPoslovnaUspesnost: true,
-    steviloOtrok: 0,
-    vzdrzevaniDrugiClani: false,
-    pdpz: false,
-    pdpzZnesek: 2400,
+// Zunaj hooka, da ostane ista referenca med renderji – sicer bi bile
+// nastavitve ob vsakem renderju (npr. vnosu prihodkov) označene kot spremenjene.
+// Privzeto je lastnik d. o. o. v svoji družbi zaposlen (najnižja osnova 60 %
+// povprečne plače), zato so mu na voljo regres, božičnica in nagrada.
+const defaultCurrentSettings: YearSettings = getPrivzeteNastavitve(2026);
+
+// Regres, božičnica in nagrada so pravice delavcev. Poslovodja brez pogodbe
+// o zaposlitvi (16. člen ZPIZ-2) jih nima, ne glede na izbiro v nastavitvah.
+// Izbira se ohrani, da se vrne, ko poslovodja spet postane zaposlen.
+function getVeljavneNastavitve(settings: YearSettings): YearSettings {
+  if (settings.dooDruzbenikPoslovodja !== true) return settings;
+  return {
+    ...settings,
+    regres: false,
+    bozicnica: false,
+    nagradaPoslovnaUspesnost: false,
   };
-  const [currentSettings, updateCurrentSettings] = useState<YearSettings>(
+}
+
+export function useSharedInputs() {
+  const [izbraneNastavitve, setIzbraneNastavitve] = useState<YearSettings>(
     defaultCurrentSettings
+  );
+  const currentSettings = useMemo(
+    () => getVeljavneNastavitve(izbraneNastavitve),
+    [izbraneNastavitve]
+  );
+
+  const updateCurrentSettings = useCallback(
+    (sprememba: Partial<YearSettings>) => {
+      setIzbraneNastavitve((prej) => ({ ...prej, ...sprememba }));
+    },
+    []
   );
 
   const sharedInputs = useSelector(store, (state) => state.context);
 
   const updateSharedInputs = useCallback(
-    (newSharedInputs: Partial<SharedInputs>) => {
+    (newSharedInputs: Partial<SharedInputs> & { imaZaposlitev?: boolean }) => {
       store.send({ type: "updateInputs", ...newSharedInputs });
     },
     []
@@ -36,7 +52,16 @@ export function useSharedInputs() {
     sharedInputs,
     updateSharedInputs,
     currentSettings,
+    // Nastavitve, kot jih je izbral uporabnik (za stikala v nastavitvah)
+    izbraneNastavitve,
     updateCurrentSettings,
-    haveSettingsChanged: currentSettings !== defaultCurrentSettings,
+    haveSettingsChanged: izbraneNastavitve !== defaultCurrentSettings,
   };
 }
+
+export type UpdateSharedInputs = ReturnType<
+  typeof useSharedInputs
+>["updateSharedInputs"];
+export type UpdateCurrentSettings = ReturnType<
+  typeof useSharedInputs
+>["updateCurrentSettings"];

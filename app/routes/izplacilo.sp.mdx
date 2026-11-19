@@ -1,12 +1,11 @@
 ---
-meta:
-  - title: Samostojni podjetnik (SP) - Izračun davkov in prispevkov 2026
-  - name: description
-    content: Izračun davkov in prispevkov za SP v 2026. Primerjava med navadnim in normiranim SP, kalkulacija prispevkov in dohodnine ter pomoč pri izbiri poslovne oblike.
+title: Samostojni podjetnik (s. p.) v letu 2026 – izračun davkov in prispevkov
+description: Izračun davkov in prispevkov za s. p. v letu 2026. Primerjava med navadnim in normiranim s. p., kalkulacija prispevkov in dohodnine ter pomoč pri izbiri poslovne oblike.
 ---
 
-export const meta = frontmatter.meta;
-export const headers = frontmatter.headers;
+import { articleMeta } from "../utils/seo";
+
+export const meta = articleMeta(frontmatter);
 
 import { IdeaIcon, ComputerDollarIcon, CalculatorIcon, Alert01Icon, CheckmarkCircle01Icon } from "hugeicons-react";
 import {
@@ -18,6 +17,8 @@ import {
   delodajalecStarsevsko,
   delodajalecBrezposelnost,
   delodajalecPoskodbe,
+  delodajalecDOrate,
+  zavarovanecDOrate,
   zavarovanecPIZrate,
   zavarovanecZZZSrate,
   zavarovanecStarsevsko,
@@ -29,15 +30,15 @@ import SharedInputs from "../ui/pages/Blogs/SharedInputs";
 import formatCurrency from "../utils/formatCurrency";
 import asPercent from "../utils/asPercent";
 
-# S.P. - Osnovni davčni izračuni
+# S. p. – osnovni davčni izračuni
 
 <div className="alert not-prose" role="alert">
-  <ComputerDollarIcon className="w-6 h-6 text-sky-500" />
+  <ComputerDollarIcon className="w-6 h-6 text-info" />
   <div>
-    <strong>Hitroprav</strong>
+    <strong>Opomba</strong>
     <br />
     <span className="text-sm">
-      Ta članek še je v nastajanju. Za izračune si poglejte [primerjavo](/).
+      Ta članek je še v nastajanju. Za izračune si poglej [primerjavo](/).
     </span>
   </div>
 </div>
@@ -66,14 +67,14 @@ import asPercent from "../utils/asPercent";
     </thead>
     <tbody>
       <tr>
-        <td>Mesečno zdravstveno zavarovanje</td>
+        <td>Obvezni zdravstveni prispevek (mesečno)</td>
         <td>{formatCurrency(zavarovanecOZPEur)}</td>
-        <td><a href="https://www.gov.si/novice/2023-12-29-z-novim-letom-prihaja-obvezni-zdravstveni-prispevek/" className="link">gov.si</a></td>
+        <td><a href="https://zavezanec.zzzs.si/fileadmin/user_upload/dokumenti/zavezanec/priloge/visina_ozp_2026.pdf" className="link">zzzs.si</a></td>
       </tr>
       <tr>
         <td>Splošna davčna olajšava</td>
         <td>{formatCurrency(generalTaxRelief)}</td>
-        <td><a href="https://fu.gov.si/fileadmin/Internet/Davki_in_druge_dajatve/Podrocja/Dohodnina/Letna_odmera_dohodnine/Opis/Lestvica_za_leto_2024.docx" className="link">fu.gov.si</a></td>
+        <td><a href="https://www.fu.gov.si/fileadmin/Internet/Davki_in_druge_dajatve/Podrocja/Dohodnina/Letna_odmera_dohodnine/Opis/Lestvica_za_leto_2026.docx" className="link">fu.gov.si</a></td>
       </tr>
     </tbody>
     <thead>
@@ -87,12 +88,12 @@ import asPercent from "../utils/asPercent";
     </thead>
     <tbody>
       <tr>
-        <td>Pokojninsko in invalidsko (PIZ)</td>
+        <td>Pokojninsko in invalidsko zavarovanje (PIZ)</td>
         <td>{asPercent(delodajalecPIZrate + zavarovanecPIZrate)}</td>
       </tr>
       <tr>
         <td>Zdravstveno zavarovanje (ZZ)</td>
-        <td>{asPercent(delodajalecZZZSrate + delodajalecZZZSrate)}</td>
+        <td>{asPercent(delodajalecZZZSrate + zavarovanecZZZSrate)}</td>
       </tr>
       <tr>
         <td>Starševsko varstvo</td>
@@ -105,6 +106,10 @@ import asPercent from "../utils/asPercent";
       <tr>
         <td>Poškodbe pri delu</td>
         <td>{asPercent(delodajalecPoskodbe)}</td>
+      </tr>
+      <tr>
+        <td>Dolgotrajna oskrba (DO)</td>
+        <td>{asPercent(delodajalecDOrate + zavarovanecDOrate)}</td>
       </tr>
     </tbody>
   </table>

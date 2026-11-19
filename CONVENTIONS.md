@@ -1,7 +1,7 @@
 ## Conventions
-Follow these remix.js conventions where applicable:
+Follow these React Router conventions where applicable:
 
- - Use Remix.js for routing
+ - Use React Router (framework mode) for routing
  - Use DaisyUI for styling
  - Put generic re-usableuse UI components into ./app/ui/common/
  - Breakdown components into smaller pieces so that readability is improved
@@ -22,7 +22,7 @@ app/
 │        ├─ *.ts            # Pure functions used only on this page
 │        └─ use*.ts         # Hooks used only on this page
 ├─ routes/
-│  └─ *.tsx                 # Remix defined routes
+│  └─ *.tsx                 # Route modules (flat routes)
 ├─ hooks
 │  └─ use*.ts               # Hooks re-used across the app
 ├─ utils/

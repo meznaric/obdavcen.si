@@ -1,5 +1,8 @@
 import {
+  AiIdeaIcon,
+  Alert01Icon,
   CalculateIcon,
+  CheckmarkCircle01Icon,
   Coins02Icon,
   ChartDecreaseIcon,
   CapStraightIcon,
@@ -12,6 +15,11 @@ import { Input } from "~/ui/common/Input/Input";
 import { Slider } from "~/ui/common/Slider/Slider";
 import { Tabs } from "~/ui/common/Tabs/Tabs";
 import { Text } from "~/ui/common/Text/Text";
+
+export const meta = () => [
+  { title: "Styleguide" },
+  { name: "robots", content: "noindex" },
+];
 
 export default function StyleguidePage() {
   const tabsData = [
@@ -61,6 +69,47 @@ export default function StyleguidePage() {
           <Text variant="label">Label text example</Text>
           <Text variant="error">Error message example</Text>
           <Text variant="link">Link text example</Text>
+        </div>
+      </section>
+
+      {/* Colours Section: tokens that are readable as text in light and dark */}
+      <section>
+        <Text variant="h2" className="mb-6">
+          Text colours
+        </Text>
+        <div className="space-y-2">
+          <Text className="text-muted">
+            text-muted – captions, descriptions, secondary values
+          </Text>
+          <Text className="text-success font-bold">
+            text-success – net amounts, what you keep
+          </Text>
+          <Text className="text-error font-bold">
+            text-error – taxes, contributions, costs
+          </Text>
+          <Text className="text-info">text-info – informational icons</Text>
+          <Text className="text-accent">text-accent – highlights</Text>
+          <Text>
+            <span className="link link-accent">link-accent</span>
+          </Text>
+        </div>
+        <div className="mt-6 grid gap-4 max-w-xl">
+          <div className="alert" role="alert">
+            <AiIdeaIcon className="size-6 text-info" />
+            <span>alert – neutral note with an info icon</span>
+          </div>
+          <div className="alert alert-info" role="alert">
+            <AiIdeaIcon className="size-6" />
+            <span>alert-info</span>
+          </div>
+          <div className="alert alert-success" role="alert">
+            <CheckmarkCircle01Icon className="size-6" />
+            <span>alert-success</span>
+          </div>
+          <div className="alert alert-warning" role="alert">
+            <Alert01Icon className="size-6" />
+            <span>alert-warning – yellow is for backgrounds only</span>
+          </div>
         </div>
       </section>
 

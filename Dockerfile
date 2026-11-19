@@ -1,6 +1,9 @@
 # Build stage
-FROM node:23-bookworm-slim as builder
+FROM node:26-trixie-slim AS builder
 WORKDIR /app
+
+# Node 26 images no longer include Yarn
+RUN npm install -g yarn@1.22.22
 
 # Copy all files first
 COPY . .
@@ -12,9 +15,12 @@ RUN yarn install --frozen-lockfile
 RUN yarn build
 
 # Production stage
-FROM node:23-bookworm-slim
+FROM node:26-trixie-slim
 WORKDIR /app
 ENV NODE_ENV=production
+
+# Node 26 images no longer include Yarn
+RUN npm install -g yarn@1.22.22
 
 # Copy only the necessary files from builder
 COPY --from=builder /app/build ./build
@@ -30,4 +36,3 @@ RUN rm -rf /app/.cache /app/.vite
 
 # Start the application
 CMD ["yarn", "start"]
-

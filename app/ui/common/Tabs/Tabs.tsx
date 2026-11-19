@@ -17,14 +17,17 @@ export function Tabs({ tabs, className }: TabsProps) {
 
   return (
     <div className={twMerge("w-full", className)}>
-      <div role="tablist" className="tabs tabs-boxed">
+      <div role="tablist" className="tabs tabs-box">
         {tabs.map((tab) => (
           <button
             key={tab.id}
             role="tab"
             aria-selected={activeTab === tab.id}
             aria-controls={`tabpanel-${tab.id}`}
-            className={twMerge("tab", activeTab === tab.id && "tab-active")}
+            className={twMerge(
+              "tab whitespace-nowrap max-sm:px-2",
+              activeTab === tab.id && "tab-active"
+            )}
             onClick={() => setActiveTab(tab.id)}
           >
             {tab.label}

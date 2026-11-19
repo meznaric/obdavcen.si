@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from "react";
 type VisibilityState = "above" | "visible" | "below";
 
 export default function useVisibilityState(): [
-  React.RefObject<HTMLDivElement>,
+  React.RefObject<HTMLDivElement | null>,
   VisibilityState
 ] {
   const ref = useRef<HTMLDivElement>(null);

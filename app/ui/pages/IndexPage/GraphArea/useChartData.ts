@@ -12,8 +12,13 @@ export function useChartData(
    */
   const data: ChartData = useMemo(() => {
     const d: ChartData = {};
-    Object.values(taxModes).forEach((mode) => {
+    Object.entries(taxModes).forEach(([modeId, mode]) => {
       const { calculator } = mode;
+      // Brez vnesene plače lastnik ni zavarovan, zato »plača po izbiri« ni
+      // primerljiva (enako pravilo kot v primerjavi na vrhu strani)
+      if (modeId === "DOOPoljubnaPlaca" && sharedInputs.salaryGross1 <= 0) {
+        return;
+      }
 
       for (let i = 10000; i <= 220000; i += 1000) {
         const maxRevenue = mode.getMaxRevenue?.(currentSettings);
@@ -21,10 +26,11 @@ export function useChartData(
           continue;
         }
 
+        const expenses = Math.min(sharedInputs.expenses, i);
         const data = calculator(
           {
             revenue: i,
-            expenses: Math.min(sharedInputs.expenses, i),
+            expenses,
             salaryGross1: sharedInputs.salaryGross1,
             lanskiPrispevki: sharedInputs.lanskiPrispevki,
           },
@@ -37,7 +43,9 @@ export function useChartData(
         d[i].push({
           taxModel: mode.shortName,
           effectiveTaxRate: data.effectiveTaxRate,
-          expenseRate: data.expenseRate,
+          // Dejanski stroški (pri normiranem s. p. kalkulator vrne delež
+          // normiranih odhodkov, ki pa niso strošek, ki bi ga plačal)
+          expenseRate: expenses / i,
           cistiPrihodkiRate: data.cistiPrihodkiRate,
         });
       }

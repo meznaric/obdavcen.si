@@ -83,10 +83,9 @@ export function TaxZones({
                 x={xScale(zone.start)}
                 y={(index % 4) * -15 - 15}
                 textAnchor="start"
-                fill={color}
+                fill="currentColor"
                 fontSize={12}
-                opacity={index === hoveredZoneIndex ? 1 : 0.5}
-                fontWeight={600}
+                fontWeight={index === hoveredZoneIndex ? 700 : 500}
               >
                 {zone.model}
               </Text>

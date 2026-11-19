@@ -3,8 +3,7 @@ import { useParentSize } from "@visx/responsive";
 import { Group } from "@visx/group";
 import { TooltipWithBounds, defaultStyles, useTooltip } from "@visx/tooltip";
 import { localPoint } from "@visx/event";
-import formatCurrency from "~/utils/formatCurrency";
-import { useChartData } from "./useChartData";
+import { getCistiPrihodki, getExpenses, useChartData } from "./useChartData";
 import { useChartScales } from "./useChartScales";
 import { TaxZones } from "./TaxZones";
 import { AreaCharts } from "./AreaCharts";
@@ -13,7 +12,7 @@ import { DataPoint } from "./types";
 import { TaxModelLines } from "./TaxModelLines";
 import { SharedInputs, YearSettings } from "~/constants/types";
 import { taxModesByShortName } from "~/utils/taxModes";
-import asPercent from "~/utils/asPercent";
+import { delez, evri } from "~/utils/numberFormat";
 
 const toolTipStyles = {
   ...defaultStyles,
@@ -22,7 +21,7 @@ const toolTipStyles = {
 };
 
 const height = 500;
-const margin = { top: 5 * 15, right: 40, bottom: 60, left: 0 };
+const margin = { top: 5 * 15, right: 52, bottom: 60, left: 0 };
 
 export default function GraphArea({
   showOnlyBestRate,
@@ -41,7 +40,7 @@ export default function GraphArea({
   const width = parentWidth;
   const { chartData, taxZones, taxModelLines, modelsByRevenue } = useChartData(
     sharedInputs,
-    currentSettings
+    currentSettings,
   );
   const xMax = width - margin.left - margin.right;
   const yMax = height - margin.top - margin.bottom;
@@ -49,7 +48,7 @@ export default function GraphArea({
   const { xScale, yScaleMoney, yScaleRate } = useChartScales(
     chartData,
     xMax,
-    yMax
+    yMax,
   );
 
   const {
@@ -61,7 +60,7 @@ export default function GraphArea({
   } = useTooltip<DataPoint | Record<string, DataPoint>>();
 
   const handlePointerMove = (
-    event: React.TouchEvent<SVGRectElement> | React.MouseEvent<SVGRectElement>
+    event: React.TouchEvent<SVGRectElement> | React.MouseEvent<SVGRectElement>,
   ) => {
     event.preventDefault();
     const { x } = localPoint(event) || { x: 0 };
@@ -77,7 +76,7 @@ export default function GraphArea({
     }, 0);
 
     const zoneIndex = taxZones.findIndex(
-      (zone) => xValue >= zone.start && xValue <= zone.end
+      (zone) => xValue >= zone.start && xValue <= zone.end,
     );
     setHoveredZoneIndex(zoneIndex);
     // console.log(taxModelLines);
@@ -97,7 +96,7 @@ export default function GraphArea({
       ref={parentRef}
       className="relative w-full select-none overflow-hidden"
     >
-      <svg width={width} height={height}>
+      <svg width={width} height={height} className="text-muted">
         <Group left={margin.left} top={margin.top}>
           <Axes
             xScale={xScale}
@@ -137,7 +136,7 @@ export default function GraphArea({
                 y1={0}
                 x2={hoverX}
                 y2={yMax}
-                stroke="#94a3b8"
+                stroke="currentColor"
                 strokeWidth={1}
                 strokeDasharray="4,4"
               />
@@ -145,33 +144,36 @@ export default function GraphArea({
                 x={hoverX}
                 y={yMax + 14}
                 textAnchor="middle"
-                fill="#94a3b8"
+                fill="currentColor"
                 fontSize={12}
               >
-                {formatCurrency(xScale.invert(hoverX), true)}
+                {evri(Math.round(xScale.invert(hoverX) / 1000) * 1000)}
               </text>
             </>
           )}
 
           {/* Current revenue indicator */}
-          <line
-            x1={xScale(currentRevenue)}
-            y1={0}
-            x2={xScale(currentRevenue)}
-            y2={yMax}
-            stroke="#6366f1"
-            strokeWidth={2}
-            strokeDasharray="4,4"
-          />
-          <text
-            x={xScale(currentRevenue)}
-            y={yMax + 40}
-            textAnchor="middle"
-            fill="#6366f1"
-            fontSize={12}
-          >
-            {formatCurrency(currentRevenue)}
-          </text>
+          <g className="text-accent">
+            <line
+              x1={xScale(currentRevenue)}
+              y1={0}
+              x2={xScale(currentRevenue)}
+              y2={yMax}
+              stroke="currentColor"
+              strokeWidth={2}
+              strokeDasharray="4,4"
+            />
+            <text
+              x={xScale(currentRevenue)}
+              y={yMax + 40}
+              textAnchor="middle"
+              fill="currentColor"
+              fontSize={12}
+              fontWeight={600}
+            >
+              {evri(currentRevenue)}
+            </text>
+          </g>
 
           <rect
             width={Math.max(xMax, 0)}
@@ -202,73 +204,69 @@ export default function GraphArea({
           style={toolTipStyles}
         >
           {isDataPoint(tooltipData) ? (
-            <div className="space-y-1 bg-accent-content p-3">
-              <div className="font-bold text-neutral-content">
-                Model: {tooltipData.taxModel}
+            <div className="space-y-1 rounded-lg border border-base-300 bg-base-100 p-3 text-sm text-base-content shadow-md">
+              <div className="font-bold">Oblika: {tooltipData.taxModel}</div>
+              <div>Prihodki: {evri(tooltipData.revenue)}</div>
+              <div className="text-green-700 dark:text-green-400">
+                Ostane ti: {evri(getCistiPrihodki(tooltipData))} (
+                {delez(tooltipData.cistiPrihodkiRate / 100)})
               </div>
-              <div className="text-blue-500">
-                Prihodki: {formatCurrency(tooltipData.revenue, true)}
+              <div className="text-red-700 dark:text-red-400">
+                Davki in prispevki: {evri(tooltipData.tax)} (
+                {delez(tooltipData.effectiveTaxRate / 100)})
               </div>
-              <div className="text-accent">
-                Efektivna davčna mera:{" "}
-                {asPercent(tooltipData.effectiveTaxRate / 100)}
-              </div>
-              <div className="text-red-500">
-                Stroški:{" "}
-                {formatCurrency(
-                  (tooltipData.expenseRate / 100) * tooltipData.revenue,
-                  true
-                )}
-                ({asPercent(tooltipData.expenseRate / 100)})
-              </div>
-              <div className="text-red-500">
-                Davek: {formatCurrency(tooltipData.tax, true)}
-              </div>
-              <div className="text-green-500">
-                Čisti dobiček:{" "}
-                {formatCurrency(
-                  (tooltipData.cistiPrihodkiRate / 100) * tooltipData.revenue,
-                  true
-                )}
-              </div>
+              {tooltipData.expenseRate > 0 && (
+                <div className="text-muted">
+                  Stroški: {evri(getExpenses(tooltipData))} (
+                  {delez(tooltipData.expenseRate / 100)})
+                </div>
+              )}
             </div>
           ) : (
-            <table className="table-sm table-zebra bg-gray-200 dark:bg-gray-900 text-base-content rounded-lg shadow-md">
+            <table className="table-sm table-zebra rounded-lg border border-base-300 bg-base-100 text-base-content shadow-md">
               <thead>
                 <tr>
-                  <th></th>
-                  <th className="text-green-500">Čisti dobiček</th>
-                  <th className="text-red-500">Davek</th>
+                  <th>Oblika</th>
+                  <th className="text-green-700 dark:text-green-400">
+                    Ostane ti
+                  </th>
+                  <th className="text-red-700 dark:text-red-400">
+                    Davki in prispevki
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {Object.entries(tooltipData)
                   .sort(
-                    ([, a], [, b]) => a.effectiveTaxRate - b.effectiveTaxRate
+                    ([, a], [, b]) => a.effectiveTaxRate - b.effectiveTaxRate,
                   )
                   .map(([model, data]) => {
                     return (
                       <tr key={model}>
-                        <td style={{ color: taxModesByShortName[model].color }}>
+                        <td>
+                          <span
+                            className="mr-1.5 inline-block size-2.5 rounded-full"
+                            style={{
+                              backgroundColor: taxModesByShortName[model].color,
+                            }}
+                            aria-hidden="true"
+                          />
                           {model}
                         </td>
                         <td>
                           <span className="font-bold">
-                            {asPercent(data.cistiPrihodkiRate / 100)}
+                            {delez(data.cistiPrihodkiRate / 100)}
                           </span>
-                          <div className="text-sm text-gray-500">
-                            {formatCurrency(
-                              (data.cistiPrihodkiRate / 100) * data.revenue,
-                              true
-                            )}
+                          <div className="text-sm text-muted">
+                            {evri(getCistiPrihodki(data))}
                           </div>
                         </td>
                         <td>
                           <span className="font-bold">
-                            {asPercent(data.effectiveTaxRate / 100)}
+                            {delez(data.effectiveTaxRate / 100)}
                           </span>
-                          <div className="text-sm text-gray-500">
-                            {formatCurrency(data.tax, true)}
+                          <div className="text-sm text-muted">
+                            {evri(data.tax)}
                           </div>
                         </td>
                       </tr>
@@ -284,7 +282,7 @@ export default function GraphArea({
 }
 
 function isDataPoint(
-  data: DataPoint | Record<string, DataPoint>
+  data: DataPoint | Record<string, DataPoint>,
 ): data is DataPoint {
   return (data as DataPoint).revenue !== undefined;
 }

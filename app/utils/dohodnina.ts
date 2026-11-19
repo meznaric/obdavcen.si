@@ -84,8 +84,22 @@ export function getOlajsavaVzdrzevaniClani(currentSettings: YearSettings) {
 }
 
 // Olajšava za prostovoljno dodatno pokojninsko zavarovanje (117. člen ZDoh-2)
-// Za S.P.: zmanjša davčno osnovo za dohodnino
-export function getPDPZOlajsava(currentSettings: YearSettings) {
+// oziroma neobdavčena premija, ki jo plača delodajalec (44. člen ZDoh-2):
+// največ 24 % obveznih prispevkov za PIZ zavarovanca in ne več kot
+// pdpzMaxZnesek na leto. Višja vplačila se ne upoštevajo.
+// https://pisrs.si/pregledPredpisa?id=ZAKO4697
+export function getPDPZOlajsava(
+  currentSettings: YearSettings,
+  // Obvezni prispevki za PIZ (zavarovanec in delodajalec) v letu
+  obvezniPIZPrispevki: number
+) {
   if (!currentSettings.pdpz) return 0;
-  return currentSettings.pdpzZnesek ?? 0;
+  return Math.max(
+    0,
+    Math.min(
+      currentSettings.pdpzZnesek ?? 0,
+      currentSettings.pdpzMaxZnesek,
+      0.24 * obvezniPIZPrispevki
+    )
+  );
 }

@@ -1,8 +1,8 @@
-import { settingsByYear } from "~/constants";
-import taxModes from "~/utils/taxModes";
-import { useSelector } from "@xstate/store/react";
+import { getPrivzeteNastavitve } from "~/constants";
+import { allTaxModes } from "~/utils/taxModes";
+import { useSelector } from "@xstate/store-react";
 import { store } from "~/utils/store";
-import { AnalyzableData } from "~/utils/taxCalculator/types";
+import type { AnalyzableData } from "~/utils/taxCalculator/types";
 import formatCurrency from "~/utils/formatCurrency";
 import { twMerge } from "tailwind-merge";
 import { SharedInputs } from "~/constants/types";
@@ -19,20 +19,23 @@ type DataPointTypes =
   | "totalExpenses";
 
 type Props = {
-  taxMode: keyof typeof taxModes;
+  taxMode: keyof typeof allTaxModes;
   dataPoint: DataPointTypes;
   revenue?: number;
   expenses?: number;
+  // Letna bruto plača iz zaposlitve (za oblike ob zaposlitvi, npr. popoldanski s. p.)
+  zaposlitevBruto?: number;
 };
 
+// Barve tem so berljive v svetli in temni temi (glej app/tailwind.css)
 const colorMap: Record<DataPointTypes, string> = {
-  effectiveTaxRate: "text-orange-500",
-  expenseRate: "text-red-500",
-  totalExpenses: "text-red-500",
-  cistiPrihodkiRate: "text-green-500",
-  totalTax: "text-red-500",
-  totalRevenue: "text-blue-500",
-  totalNet: "text-green-500",
+  effectiveTaxRate: "text-error",
+  expenseRate: "text-error",
+  totalExpenses: "text-error",
+  cistiPrihodkiRate: "text-success",
+  totalTax: "text-error",
+  totalRevenue: "text-info",
+  totalNet: "text-success",
 };
 
 function getDataPoint(
@@ -55,8 +58,9 @@ function getDataPoint(
   if (dataPoint === "totalRevenue") {
     return formatCurrency(sharedInputs.revenue);
   }
+  // Ostane ti: prihodki − davki in prispevki − stroški
   if (dataPoint === "totalNet") {
-    return formatCurrency(sharedInputs.revenue - result.totalTax);
+    return formatCurrency(result.cistiPrihodki);
   }
   if (dataPoint === "totalExpenses") {
     return formatCurrency(sharedInputs.expenses);
@@ -69,19 +73,19 @@ function getDataPointName(dataPoint: DataPointTypes) {
     return "efektivna davčna stopnja";
   }
   if (dataPoint === "expenseRate") {
-    return "procent stroškov";
+    return "delež stroškov";
   }
   if (dataPoint === "cistiPrihodkiRate") {
-    return "procent čistih prihodkov";
+    return "delež, ki ti ostane";
   }
   if (dataPoint === "totalTax") {
-    return "davki skupaj";
+    return "davki in prispevki skupaj";
   }
   if (dataPoint === "totalRevenue") {
-    return "čisti prihodki skupaj";
+    return "prihodki skupaj";
   }
   if (dataPoint === "totalNet") {
-    return "davki skupaj";
+    return "ostane ti: prihodki − davki in prispevki − stroški";
   }
   if (dataPoint === "totalExpenses") {
     return "stroški skupaj";
@@ -94,10 +98,12 @@ export default function CurrencyOutput({
   dataPoint,
   revenue,
   expenses,
+  zaposlitevBruto,
 }: Props) {
-  const currentTaxMode = taxModes[taxMode];
+  const currentTaxMode = allTaxModes[taxMode];
   const sharedInputsGlobal = useSelector(store, (state) => state.context);
-  const currentSettings = settingsByYear[2026];
+  // Enake privzete nastavitve kot v kalkulatorju na prvi strani
+  const currentSettings = getPrivzeteNastavitve(2026);
   const maxRevenue = currentTaxMode.getMaxRevenue?.(currentSettings) ?? Infinity;
   const sharedInputs: SharedInputs = {
     revenue: Math.min(
@@ -106,6 +112,7 @@ export default function CurrencyOutput({
     ),
     expenses: expenses ?? sharedInputsGlobal.expenses,
     salaryGross1: getMinimalnaOsnova(currentSettings.averageIncomeLastYear),
+    zaposlitevBruto: zaposlitevBruto ?? sharedInputsGlobal.zaposlitevBruto,
   };
   const result = currentTaxMode.calculator(sharedInputs, currentSettings);
   return (
